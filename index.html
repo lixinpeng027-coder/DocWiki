@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人研发知识库</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <div class="logo" onclick="switchTab('home')">
+            <div class="logo-icon"><img src="assets/images/logo.png" style="width:40px;height:40px;border-radius:8px;display:block;"></div>
+            <img src="assets/images/wiki-text.png" style="height:44px;display:block;">
+        </div>
+        
+        <nav class="nav-tabs">
+            <div class="nav-tab active" data-tab="home">首页</div>
+            <div class="nav-tab" data-tab="task">任务</div>
+            <div class="nav-tab" data-tab="project">项目</div>
+            <div class="nav-tab" data-tab="literature">文献</div>
+            <div class="nav-tab" data-tab="report">报告</div>
+            <div class="nav-tab" data-tab="sop">SOP</div>
+            <div class="nav-tab" data-tab="software">软件</div>
+            <div class="nav-tab" data-tab="writing">写作</div>
+            <div class="nav-tab" data-tab="settings">设置</div>
+        </nav>
+        
+        <div class="header-actions">
+            <div class="search-box">
+                    <input type="text" placeholder="搜索知识库...">
+                    <svg class="search-icon" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                </div>
+            <button class="theme-toggle" id="themeToggle" title="切换主题">
+                    <div class="toggle-track">
+                        <span class="toggle-icon sun">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="4.5"/>
+                                <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
+                            </svg>
+                        </span>
+                        <span class="toggle-icon moon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                            </svg>
+                        </span>
+                    </div>
+                </button>
+
+        </div>
+    </header>
+
+    <!-- 首页内容 -->
+    <main class="home-content" style="height:100vh;display:flex;flex-direction:column;background:#ffffff;">
+        <!-- Hero 区域 -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <img src="assets/images/wiki-text.png" style="height:240px;display:inline-block;margin-bottom:4px;">
+                <h1 class="hero-title">个人知识库</h1>
+                <p class="hero-subtitle" id="heroSubtitle">以 Markdown 为核，沉淀知效，专注研发。</p>
+                <div class="hero-actions">
+                    <button class="btn btn-primary" onclick="document.getElementById('featuresPage').scrollIntoView({behavior:'smooth'})">
+                        开始使用
+                    </button>
+                </div>
+            </div>
+            
+
+        </section>
+
+    </main>
+
+    <!-- 第二屏：入口卡片 -->
+    <section class="features-section" id="featuresPage">
+        <div class="features-grid">
+                <div class="feature-card" onclick="switchTab('task')">
+                    <div class="feature-icon task"><img src="assets/images/card-task.png" style="width:80px;height:80px;border-radius:16px;display:block;"></div>
+                    <div class="feature-content">
+                        <div class="feature-title">任务</div>
+                    </div>
+                    <div class="feature-arrow">→</div>
+                </div>
+                <div class="feature-card" onclick="switchTab('project')">
+                    <div class="feature-icon project"><img src="assets/images/card-project.png" style="width:80px;height:80px;border-radius:16px;display:block;"></div>
+                    <div class="feature-content">
+                        <div class="feature-title">项目</div>
+                    </div>
+                    <div class="feature-arrow">→</div>
+                </div>
+                <div class="feature-card" onclick="switchTab('literature')">
+                    <div class="feature-icon literature"><img src="assets/images/card-literature.png" style="width:80px;height:80px;border-radius:16px;display:block;"></div>
+                    <div class="feature-content">
+                        <div class="feature-title">文献</div>
+                    </div>
+                    <div class="feature-arrow">→</div>
+                </div>
+                <div class="feature-card" onclick="switchTab('report')">
+                    <div class="feature-icon report"><img src="assets/images/card-report.png" style="width:80px;height:80px;border-radius:16px;display:block;"></div>
+                    <div class="feature-content">
+                        <div class="feature-title">报告</div>
+                    </div>
+                    <div class="feature-arrow">→</div>
+                </div>
+                <div class="feature-card" onclick="switchTab('sop')">
+                    <div class="feature-icon sop"><img src="assets/images/card-sop.png" style="width:80px;height:80px;border-radius:16px;display:block;"></div>
+                    <div class="feature-content">
+                        <div class="feature-title">SOP</div>
+                    </div>
+                    <div class="feature-arrow">→</div>
+                </div>
+                <div class="feature-card" onclick="switchTab('software')">
+                    <div class="feature-icon software"><img src="assets/images/card-software.png" style="width:80px;height:80px;border-radius:16px;display:block;"></div>
+                    <div class="feature-content">
+                        <div class="feature-title">软件</div>
+                    </div>
+                    <div class="feature-arrow">→</div>
+                </div>
+                <div class="feature-card" onclick="switchTab('writing')">
+                    <div class="feature-icon writing"><img src="assets/images/card-writing.png" style="width:80px;height:80px;border-radius:16px;display:block;"></div>
+                    <div class="feature-content">
+                        <div class="feature-title">写作</div>
+                    </div>
+                    <div class="feature-arrow">→</div>
+                </div>
+                <div class="feature-card" onclick="switchTab('settings')">
+                    <div class="feature-icon settings">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-secondary);">
+                                <circle cx="12" cy="12" r="8.5" stroke-width="3" stroke-dasharray="3.2 3.476"/>
+                                <circle cx="12" cy="12" r="6.5" stroke-width="1.8"/>
+                                <circle cx="12" cy="12" r="2.2" stroke-width="1.8"/>
+                            </svg>
+                        </div>
+                    <div class="feature-content">
+                        <div class="feature-title">设置</div>
+                    </div>
+                    <div class="feature-arrow">→</div>
+                </div>
+            </div>
+        </section>
+
+
+    </main>
+
+    <!-- 文档页面（其他栏目） -->
+    <main class="doc-page" id="docPage">
+        <!-- 这里是其他栏目的内容，保留原有结构 -->
+        <div style="padding-top: 72px; height: calc(100vh - 72px); display: flex;">
+            <!-- 左侧导航 -->
+            <aside style="width: 260px; background: white; border-right: 1px solid #e2e8f0; padding: 16px;">
+                <div style="font-size: 12px; font-weight: 600; color: #94a3b8; padding: 12px 16px; border-bottom: 1px solid #e2e8f0;">导航</div>
+                <div id="navTree" style="padding-top: 8px;">
+                    <!-- 动态生成导航 -->
+                </div>
+            </aside>
+            
+            <!-- 右侧内容 -->
+            <div style="flex: 1; background: #f8fafc; padding: 24px;">
+                <h2 id="docTitle" style="font-size: 24px; margin-bottom: 16px;">请选择一个文件</h2>
+                <p style="color: #64748b;">从左侧导航选择一个文件查看内容</p>
+            </div>
+        </div>
+    </main>
+
+        <script src="js/app.js"></script>
+</body>
+</html>
