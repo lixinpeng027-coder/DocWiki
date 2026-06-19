@@ -1,5 +1,4 @@
-
-        // 导航数据
+// 导航数据
         const navData = {
             task: [
                 { name: '待办事项', file: '待办事项.md' },
@@ -100,18 +99,41 @@
             document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
             document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
             
+            // 隐藏所有页面
+            const homePage = document.querySelector('.home-page');
+            const taskPage = document.getElementById('taskPage');
+            const docPage = document.getElementById('docPage');
+            
+            if (homePage) homePage.classList.add('hidden');
+            if (taskPage) taskPage.classList.remove('active');
+            if (docPage) docPage.classList.remove('active');
+            
             if (tab === 'home') {
-                document.querySelector('.home-content').style.display = 'block';
-                document.getElementById('docPage').style.display = 'none';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                if (homePage) homePage.classList.remove('hidden');
+            } else if (tab === 'task') {
+                // 任务页面特殊处理 - 默认显示阅读模式
+                if (taskPage) taskPage.classList.add('active');
+                // 确保阅读模式被激活
+                const readMode = document.getElementById('taskReadMode');
+                const editMode = document.getElementById('taskEditMode');
+                const modeButtons = document.querySelectorAll('.mode-switch .mode-btn');
+                if (readMode) readMode.classList.add('active');
+                if (editMode) editMode.classList.remove('active');
+                if (modeButtons.length > 0) {
+                    modeButtons.forEach(btn => btn.classList.remove('active'));
+                    modeButtons[0].classList.add('active'); // 激活阅读模式按钮
+                }
             } else {
-                document.querySelector('.home-content').style.display = 'none';
-                document.getElementById('docPage').style.display = 'block';
-                
+                // 其他栏目使用文档页面
+                if (docPage) docPage.classList.add('active');
                 // 更新导航树
                 const items = navData[tab] || [];
                 document.getElementById('navTree').innerHTML = renderNavTree(items);
             }
+            
+            // 滚动到页面顶部
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
         }
 
         // 副标题轮播
@@ -154,4 +176,65 @@
                 switchTab(this.dataset.tab);
             });
         });
-    
+
+// 下拉菜单切换
+        function toggleDropdown(btn) {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                if (menu !== btn.nextElementSibling) {
+                    menu.classList.remove('show');
+                }
+            });
+            btn.nextElementSibling.classList.toggle('show');
+        }
+
+        // 修改状态
+        function changeStatus(item, status) {
+            const dropdown = item.closest('.dropdown-menu');
+            const btn = dropdown.previousElementSibling;
+            
+            btn.classList.remove('待开始', '进行中', '已完成', '暂停');
+            btn.classList.add(status);
+            btn.childNodes[0].textContent = status;
+            
+            dropdown.classList.remove('show');
+        }
+
+        // 点击其他区域关闭下拉菜单
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.status-dropdown')) {
+                document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                    menu.classList.remove('show');
+                });
+            }
+        });
+
+        // 切换任务模式
+        function navigateToDoc(category, docName) {
+            switchTab(category);
+            document.getElementById('docTitle').textContent = docName;
+            document.getElementById('docContent').innerHTML = `<p>正在加载文档：<strong>${docName}</strong></p>
+            <p>这是 "${docName}" 的文档内容编辑区域。</p>
+            <p>您可以在这里编辑与任务相关的文档内容。</p>`;
+        }
+
+        function switchTaskMode(mode) {
+            const readMode = document.getElementById('taskReadMode');
+            const editMode = document.getElementById('taskEditMode');
+            const modeButtons = document.querySelectorAll('.mode-switch .mode-btn');
+            
+            modeButtons.forEach(btn => btn.classList.remove('active'));
+            
+            if (mode === 'read') {
+                readMode.classList.add('active');
+                editMode.classList.remove('active');
+                modeButtons[0].classList.add('active');
+            } else {
+                readMode.classList.remove('active');
+                editMode.classList.add('active');
+                modeButtons[1].classList.add('active');
+            }
+            
+            // 滚动到页面顶部
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+        }
