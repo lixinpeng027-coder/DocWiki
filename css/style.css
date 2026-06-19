@@ -1215,55 +1215,62 @@
             margin: 0;
         }
 
-        /* 任务收集表 - 列宽控制 */
+        /* 任务收集表 - 列宽控制（含复选框列） */
         .task-table:not(.completed-table) th:nth-child(1),
         .task-table:not(.completed-table) td:nth-child(1) {
+            width: 30px;
+            text-align: center;
+        }
+
+        .task-table:not(.completed-table) th:nth-child(2),
+        .task-table:not(.completed-table) td:nth-child(2) {
             width: 130px;
             white-space: normal;
             word-break: break-word;
             vertical-align: middle;
         }
 
-        .task-table:not(.completed-table) th:nth-child(2),
-        .task-table:not(.completed-table) td:nth-child(2) {
-            width: 70px;
-            text-align: center;
-        }
-
         .task-table:not(.completed-table) th:nth-child(3),
         .task-table:not(.completed-table) td:nth-child(3) {
-            width: 80px;
+            width: 70px;
             text-align: center;
         }
 
         .task-table:not(.completed-table) th:nth-child(4),
         .task-table:not(.completed-table) td:nth-child(4) {
-            width: 100px;
+            width: 80px;
+            text-align: center;
         }
 
         .task-table:not(.completed-table) th:nth-child(5),
         .task-table:not(.completed-table) td:nth-child(5) {
-            width: 80px;
+            width: 100px;
         }
 
         .task-table:not(.completed-table) th:nth-child(6),
         .task-table:not(.completed-table) td:nth-child(6) {
+            width: 80px;
+        }
+
+        .task-table:not(.completed-table) th:nth-child(7),
+        .task-table:not(.completed-table) td:nth-child(7) {
             white-space: normal;
             word-break: break-word;
             vertical-align: middle;
         }
 
-        .task-table:not(.completed-table) th:nth-child(7),
-        .task-table:not(.completed-table) td:nth-child(7) {
+        .task-table:not(.completed-table) th:nth-child(8),
+        .task-table:not(.completed-table) td:nth-child(8) {
             width: 80px;
             text-align: center;
         }
 
-        .task-table:not(.completed-table) th:nth-child(8),
-        .task-table:not(.completed-table) td:nth-child(8) {
+        .task-table:not(.completed-table) th:nth-child(9),
+        .task-table:not(.completed-table) td:nth-child(9) {
             width: 120px;
         }
-        /* 已完成任务列表 - 纯白背景 */
+
+    /* 已完成任务列表 - 纯白背景 */
         .completed-table {
             background: #ffffff;
         }

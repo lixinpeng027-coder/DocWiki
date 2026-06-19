@@ -1,4 +1,139 @@
-﻿﻿// 导航数据
+﻿
+// ========== 表格数据管理 ==========
+
+// 从 localStorage 加载数据
+function loadTableData() {
+    try {
+        const saved = localStorage.getItem('wiki_task_data');
+        if (saved) {
+            return JSON.parse(saved);
+        }
+    } catch(e) {}
+    return null;
+}
+
+// 保存数据到 localStorage
+function saveTableData() {
+    const tbody = document.getElementById('taskTableBody');
+    if (!tbody) return;
+    
+    const rows = [];
+    tbody.querySelectorAll('tr').forEach(tr => {
+        const cells = tr.querySelectorAll('td');
+        if (cells.length < 9) return;
+        
+        const checkbox = cells[0].querySelector('.row-checkbox');
+        const taskName = cells[1].textContent.trim() || cells[1].querySelector('input')?.value || '';
+        const priority = cells[2].querySelector('select')?.value || '中';
+        const category = cells[3].querySelector('input')?.value || cells[3].textContent.trim() || '';
+        const project = cells[4].querySelector('input')?.value || cells[4].textContent.trim() || '';
+        const subItem = cells[5].querySelector('.sub-text')?.textContent?.trim() || '';
+        const detail = cells[6].textContent.trim() || '';
+        const status = cells[7].querySelector('select')?.value || cells[7].querySelector('.status-badge')?.textContent?.trim() || '';
+        const deadline = cells[8].querySelector('input')?.value || cells[8].textContent.trim() || '';
+        
+        rows.push({ taskName, priority, category, project, subItem, detail, status, deadline });
+    });
+    
+    localStorage.setItem('wiki_task_data', JSON.stringify(rows));
+    localStorage.setItem('wiki_categories', JSON.stringify(getAllCategories()));
+    hasUnsaved = false;
+    showSaveStatus('已保存');
+}
+
+// 获取所有已输入的栏目
+function getAllCategories() {
+    const cats = new Set(['项目', '报告', '文献', 'SOP', '软件', '写作', '其他']);
+    const tbody = document.getElementById('taskTableBody');
+    if (tbody) {
+        tbody.querySelectorAll('tr').forEach(tr => {
+            const input = tr.querySelector('td:nth-child(4) .level-combo');
+            if (input && input.value) cats.add(input.value.trim());
+        });
+    }
+    return Array.from(cats);
+}
+
+// 更新栏目 datalist 选项
+function updateCategoryList() {
+    const cats = getAllCategories();
+    const datalist = document.getElementById('category-list');
+    if (datalist) {
+        datalist.innerHTML = cats.map(c => `<option value="${c}">`).join('');
+    }
+}
+
+// 监听栏目输入变化，自动记忆新栏目
+document.addEventListener('input', function(e) {
+    if (e.target.matches('.level-combo[list="category-list"]')) {
+        updateCategoryList();
+        markUnsaved();
+    }
+    if (e.target.closest('.task-table')) {
+        markUnsaved();
+    }
+});
+
+// 显示保存状态
+function showSaveStatus(msg) {
+    const btn = document.querySelector('.btn-action.btn-primary');
+    if (btn) {
+        const orig = btn.textContent;
+        btn.textContent = '✅ ' + msg;
+        setTimeout(() => { btn.textContent = orig; }, 2000);
+    }
+}
+
+// 保存按钮点击
+document.addEventListener('DOMContentLoaded', function() {
+    // 绑定保存按钮
+    document.querySelectorAll('.btn-action.btn-primary').forEach(btn => {
+        if (btn.textContent.includes('保存')) {
+            btn.onclick = saveTableData;
+        }
+    });
+    
+    // 加载已保存数据
+    const saved = loadTableData();
+    if (saved && saved.length > 0) {
+        // 只在表格为空时加载
+        const tbody = document.getElementById('taskTableBody');
+        if (tbody && tbody.querySelectorAll('tr').length <= 1) {
+            // Clear existing rows
+            tbody.innerHTML = '';
+            saved.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><input type="checkbox" class="row-checkbox" onchange="onRowCheck(this)"></td>
+                    <td>${row.taskName}</td>
+                    <td><select class="priority-select"><option value="高">高</option><option value="中" ${row.priority === '中' ? 'selected' : ''}>中</option><option value="低" ${row.priority === '低' ? 'selected' : ''}>低</option></select></td>
+                    <td><input class="level-combo" list="category-list" value="${row.category}" placeholder="输入或选择栏目"></td>
+                    <td><input class="level-combo" list="project-list" value="${row.project}" placeholder="输入或选择项目"></td>
+                    <td><span class="sub-text" onclick="editSub(this)">${row.subItem || '未设置'}</span><input class="sub-input" value="${row.subItem || ''}" onblur="saveSub(this)" onkeydown="if(event.key==='Enter')this.blur()"></td>
+                    <td>${row.detail}</td>
+                    <td><select class="status-select"><option value="待开始">待开始</option><option value="进行中" ${row.status === '进行中' ? 'selected' : ''}>进行中</option><option value="已完成" ${row.status === '已完成' ? 'selected' : ''}>已完成</option></select></td>
+                    <td>${row.deadline ? `<input type="date" class="date-picker" value="${row.deadline}">` : '<input type="date" class="date-picker">'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    }
+    
+    // 更新栏目列表
+    updateCategoryList();
+});
+
+// 监听编辑模式切换 - 自动保存
+const _origSwitchTaskMode = window.switchTaskMode;
+if (_origSwitchTaskMode) {
+    window.switchTaskMode = function(mode) {
+        if (mode === 'read') {
+            saveTableData();
+        }
+        _origSwitchTaskMode(mode);
+    };
+}
+﻿// 导航数据
         const navData = {
             task: [
                 { name: '待办事项', file: '待办事项.md' },
