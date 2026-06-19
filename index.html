@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -136,223 +136,143 @@
             </div>
         </section>
     </main>
-
+  
     <!-- 任务页面 -->
     <div class="task-page" id="taskPage">
-        <div class="page-header">
-            <div class="page-title-area">
-                <h1>任务</h1>
-                <p>收集、整理和维护研发任务，统一写回本地 Markdown。</p>
-            </div>
-            <div class="mode-switch">
-                <button class="mode-btn active" onclick="switchTaskMode('read')">阅读模式</button>
-                <button class="mode-btn" onclick="switchTaskMode('edit')">编辑模式</button>
-            </div>
-        </div>
-
         <!-- 阅读模式内容 -->
-        <div class="task-list-container" id="taskReadMode" class="active">
+        <div class="task-list-container active" id="taskReadMode">
+            <div class="task-content-header">
+                <div class="task-content-header-left">
+                    <h1>查看任务</h1>
+                    <p>一览全局进展，快速定位关键事项。</p>
+                </div>
+                <div class="mode-switch-inline">
+                    <button class="mode-btn active" onclick="switchTaskMode('read')">查看任务</button>
+                    <button class="mode-btn" onclick="switchTaskMode('edit')">管理任务</button>
+                </div>
+            </div>
             <!-- 今日任务 -->
             <section class="task-section">
                 <h2 class="task-section-title">今日任务 <span>2</span></h2>
-                
-                <div class="task-card">
-                    <div class="task-icon 实验">🧪</div>
-                    <div class="task-main">
-                        <div class="task-header">
-                            <span class="task-name">酶活性筛选数据分析</span>
-                            <span class="priority-badge 高">高</span>
-                            <span class="category-badge">项目</span>
+                <div class="task-grid">
+                    <div class="task-card-v2">
+                        <div class="tc2-icon">
+                            <img src="assets/images/card-project.png" alt="项目" width="36" height="36" style="border-radius:8px;">
                         </div>
-                        <p class="task-desc">整理本周酶活性筛选实验数据，进行标准化处理与可视化分析，输出初步结论与图表。</p>
-                        <div class="task-meta">
-                            <span class="task-meta-item">
-                                <svg class="task-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                                    <line x1="3" y1="10" x2="21" y2="10"></line>
-                                </svg>
-                                今天 18:00
-                            </span>
-                            <span class="task-meta-item">
-                                <svg class="task-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-                                </svg>
-                                <a href="#" onclick="navigateToDoc('project', '高效酶改造项目')" class="doc-link">高效酶改造项目</a>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="task-actions">
-                        <button class="nav-btn" onclick="navigateToDoc('project', '高效酶改造项目')">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                            </svg>
-                            跳转文档
-                        </button>
-                        <div class="status-dropdown">
-                            <button class="status-btn 进行中" onclick="toggleDropdown(this)">
-                                进行中
-                                <span class="status-arrow">˅</span>
-                            </button>
-                            <div class="dropdown-menu">
-                                <div class="dropdown-item" onclick="changeStatus(this, '待开始')">待开始</div>
-                                <div class="dropdown-item" onclick="changeStatus(this, '进行中')">进行中</div>
-                                <div class="dropdown-item" onclick="changeStatus(this, '已完成')">已完成</div>
-                                <div class="dropdown-item" onclick="changeStatus(this, '暂停')">暂停</div>
+                        <div class="tc2-body">
+                            <div class="tc2-header">
+                                <span class="tc2-title">酶活性筛选数据分析</span>
+                                <span class="tc2-badge priority-high">高优先级</span>
+                                <span class="tc2-badge status-progress">进行中</span>
+                            </div>
+                            <p class="tc2-desc">整理本周酶活性筛选实验数据，进行标准化处理与可视化分析，输出初步结论与图表。</p>
+                            <div class="tc2-footer">
+                                <span class="tc2-meta">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                    截止：今天 18:00
+                                </span>
+                                <span class="tc2-divider"></span>
+                                <span class="tc2-meta">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                                    项目：高效酶改造项目
+                                </span>
+                                <a href="#" class="tc2-link" onclick="navigateToDoc('project', '高效酶改造项目')">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                                    关联文档
+                                </a>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="task-card">
-                    <div class="task-icon 文档">📝</div>
-                    <div class="task-main">
-                        <div class="task-header">
-                            <span class="task-name">发酵实验周报撰写</span>
-                            <span class="priority-badge 中">中</span>
-                            <span class="category-badge">报告</span>
+                    <div class="task-card-v2">
+                        <div class="tc2-icon">
+                            <img src="assets/images/card-report.png" alt="报告" width="36" height="36" style="border-radius:8px;">
                         </div>
-                        <p class="task-desc">总结本周发酵实验进展，对比 OD、产量和异常点，形成周报文字。</p>
-                        <div class="task-meta">
-                            <span class="task-meta-item">
-                                <svg class="task-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                                    <line x1="3" y1="10" x2="21" y2="10"></line>
-                                </svg>
-                                今天
-                            </span>
-                            <span class="task-meta-item">
-                                <svg class="task-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-                                </svg>
-                                <a href="#" onclick="navigateToDoc('report', '周报汇总')" class="doc-link">周报汇总</a>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="task-actions">
-                        <button class="nav-btn" onclick="navigateToDoc('report', '周报汇总')">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                            </svg>
-                            跳转文档
-                        </button>
-                        <div class="status-dropdown">
-                            <button class="status-btn 待开始" onclick="toggleDropdown(this)">
-                                待开始
-                                <span class="status-arrow">˅</span>
-                            </button>
-                            <div class="dropdown-menu">
-                                <div class="dropdown-item" onclick="changeStatus(this, '待开始')">待开始</div>
-                                <div class="dropdown-item" onclick="changeStatus(this, '进行中')">进行中</div>
-                                <div class="dropdown-item" onclick="changeStatus(this, '已完成')">已完成</div>
-                                <div class="dropdown-item" onclick="changeStatus(this, '暂停')">暂停</div>
+                        <div class="tc2-body">
+                            <div class="tc2-header">
+                                <span class="tc2-title">发酵实验周报撰写</span>
+                                <span class="tc2-badge priority-mid">中优先级</span>
+                                <span class="tc2-badge status-pending">待开始</span>
+                            </div>
+                            <p class="tc2-desc">总结本周发酵实验进展，对比 OD、产量和异常点，形成周报文字。</p>
+                            <div class="tc2-footer">
+                                <span class="tc2-meta">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                    截止：今天
+                                </span>
+                                <span class="tc2-divider"></span>
+                                <span class="tc2-meta">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                                    项目：周报汇总
+                                </span>
+                                <a href="#" class="tc2-link" onclick="navigateToDoc('report', '周报汇总')">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                                    关联文档
+                                </a>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- 本周任务 -->
-                <section class="task-section">
+            </section>
+
+            <!-- 本周任务 -->
+            <section class="task-section">
                 <h2 class="task-section-title">本周任务 <span>2</span></h2>
-                
-                <div class="task-card">
-                    <div class="task-icon 文档">📋</div>
-                    <div class="task-main">
-                        <div class="task-header">
-                            <span class="task-name">SOP 文档修订</span>
-                            <span class="priority-badge 高">高</span>
-                            <span class="category-badge">SOP</span>
+                <div class="task-grid">
+                    <div class="task-card-v2">
+                        <div class="tc2-icon">
+                            <img src="assets/images/card-sop.png" alt="SOP" width="36" height="36" style="border-radius:8px;">
                         </div>
-                        <p class="task-desc">根据最新实验流程修订蛋白纯化 SOP，补充关键步骤和常见问题处理。</p>
-                        <div class="task-meta">
-                            <span class="task-meta-item">
-                                <svg class="task-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                                    <line x1="3" y1="10" x2="21" y2="10"></line>
-                                </svg>
-                                本周五
-                            </span>
-                            <span class="task-meta-item">
-                                <svg class="task-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-                                </svg>
-                                <a href="#" onclick="navigateToDoc('sop', '蛋白纯化 SOP')" class="doc-link">蛋白纯化 SOP</a>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="task-actions">
-                        <button class="nav-btn" onclick="navigateToDoc('sop', '蛋白纯化 SOP')">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                            </svg>
-                            跳转文档
-                        </button>
-                        <div class="status-dropdown">
-                            <button class="status-btn 进行中" onclick="toggleDropdown(this)">
-                                进行中
-                                <span class="status-arrow">˅</span>
-                            </button>
-                            <div class="dropdown-menu">
-                                <div class="dropdown-item" onclick="changeStatus(this, '待开始')">待开始</div>
-                                <div class="dropdown-item" onclick="changeStatus(this, '进行中')">进行中</div>
-                                <div class="dropdown-item" onclick="changeStatus(this, '已完成')">已完成</div>
-                                <div class="dropdown-item" onclick="changeStatus(this, '暂停')">暂停</div>
+                        <div class="tc2-body">
+                            <div class="tc2-header">
+                                <span class="tc2-title">SOP 文档修订</span>
+                                <span class="tc2-badge priority-high">高优先级</span>
+                                <span class="tc2-badge status-progress">进行中</span>
+                            </div>
+                            <p class="tc2-desc">根据最新实验流程修订蛋白纯化 SOP，补充关键步骤和常见问题处理。</p>
+                            <div class="tc2-footer">
+                                <span class="tc2-meta">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                    截止：本周五
+                                </span>
+                                <span class="tc2-divider"></span>
+                                <span class="tc2-meta">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                                    项目：蛋白纯化 SOP
+                                </span>
+                                <a href="#" class="tc2-link" onclick="navigateToDoc('sop', '蛋白纯化 SOP')">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                                    关联文档
+                                </a>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="task-card">
-                    <div class="task-icon 代码">💻</div>
-                    <div class="task-main">
-                        <div class="task-header">
-                            <span class="task-name">数据分析脚本优化</span>
-                            <span class="priority-badge 中">中</span>
-                            <span class="category-badge">软件</span>
+
+                    <div class="task-card-v2">
+                        <div class="tc2-icon">
+                            <img src="assets/images/card-software.png" alt="软件" width="36" height="36" style="border-radius:8px;">
                         </div>
-                        <p class="task-desc">优化现有数据处理脚本，增加异常数据检测与日志记录功能。</p>
-                        <div class="task-meta">
-                            <span class="task-meta-item">
-                                <svg class="task-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                                    <line x1="3" y1="10" x2="21" y2="10"></line>
-                                </svg>
-                                本周日
-                            </span>
-                            <span class="task-meta-item">
-                                <svg class="task-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-                                </svg>
-                                <a href="#" onclick="navigateToDoc('software', '数据分析平台')" class="doc-link">数据分析平台</a>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="task-actions">
-                        <button class="nav-btn" onclick="navigateToDoc('software', '数据分析平台')">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                            </svg>
-                            跳转文档
-                        </button>
-                        <div class="status-dropdown">
-                            <button class="status-btn 待开始" onclick="toggleDropdown(this)">
-                                待开始
-                                <span class="status-arrow">˅</span>
-                            </button>
-                            <div class="dropdown-menu">
-                                <div class="dropdown-item" onclick="changeStatus(this, '待开始')">待开始</div>
-                                <div class="dropdown-item" onclick="changeStatus(this, '进行中')">进行中</div>
-                                <div class="dropdown-item" onclick="changeStatus(this, '已完成')">已完成</div>
-                                <div class="dropdown-item" onclick="changeStatus(this, '暂停')">暂停</div>
+                        <div class="tc2-body">
+                            <div class="tc2-header">
+                                <span class="tc2-title">数据分析脚本优化</span>
+                                <span class="tc2-badge priority-mid">中优先级</span>
+                                <span class="tc2-badge status-pending">待开始</span>
+                            </div>
+                            <p class="tc2-desc">优化现有数据处理脚本，增加异常数据检测与日志记录功能。</p>
+                            <div class="tc2-footer">
+                                <span class="tc2-meta">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                    截止：本周日
+                                </span>
+                                <span class="tc2-divider"></span>
+                                <span class="tc2-meta">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                                    项目：数据分析平台
+                                </span>
+                                <a href="#" class="tc2-link" onclick="navigateToDoc('software', '数据分析平台')">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                                    关联文档
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -362,82 +282,67 @@
             <!-- 全部任务 -->
             <section class="task-section">
                 <h2 class="task-section-title">全部任务 <span>5</span></h2>
-                
-                <div class="task-card incomplete">
-                    <div class="task-icon 阅读">📚</div>
-                    <div class="task-main">
-                        <div class="task-header">
-                            <span class="task-name">文献阅读与摘要整理</span>
-                            <span class="priority-badge 低">低</span>
-                            <span class="category-badge">文献</span>
+                <div class="task-grid">
+                    <div class="task-card-v2">
+                        <div class="tc2-icon">
+                            <img src="assets/images/card-literature.png" alt="文献" width="36" height="36" style="border-radius:8px;">
                         </div>
-                        <p class="task-desc">阅读并整理底物特异性预测相关文献，提炼方法与关键结论。</p>
-                        <div class="task-meta">
-                            <span class="task-meta-item">
-                                <svg class="task-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                                    <line x1="3" y1="10" x2="21" y2="10"></line>
-                                </svg>
-                                下周一
-                            </span>
-                            <span class="task-meta-item">
-                                <svg class="task-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-                                </svg>
-                                <a href="#" onclick="navigateToDoc('literature', '底物特异性研究')" class="doc-link">底物特异性研究</a>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="task-actions">
-                        <button class="nav-btn" onclick="navigateToDoc('literature', '底物特异性研究')">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                            </svg>
-                            跳转文档
-                        </button>
-                        <div class="status-dropdown">
-                            <button class="status-btn 待开始" onclick="toggleDropdown(this)">
-                                待开始
-                                <span class="status-arrow">˅</span>
-                            </button>
-                            <div class="dropdown-menu">
-                                <div class="dropdown-item" onclick="changeStatus(this, '待开始')">待开始</div>
-                                <div class="dropdown-item" onclick="changeStatus(this, '进行中')">进行中</div>
-                                <div class="dropdown-item" onclick="changeStatus(this, '已完成')">已完成</div>
-                                <div class="dropdown-item" onclick="changeStatus(this, '暂停')">暂停</div>
+                        <div class="tc2-body">
+                            <div class="tc2-header">
+                                <span class="tc2-title">文献阅读与摘要整理</span>
+                                <span class="tc2-badge priority-low">低优先级</span>
+                                <span class="tc2-badge status-pending">待开始</span>
+                            </div>
+                            <p class="tc2-desc">阅读并整理底物特异性预测相关文献，提炼方法与关键结论。</p>
+                            <div class="tc2-footer">
+                                <span class="tc2-meta">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                    截止：下周一
+                                </span>
+                                <span class="tc2-divider"></span>
+                                <span class="tc2-meta">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                                    项目：底物特异性研究
+                                </span>
+                                <a href="#" class="tc2-link" onclick="navigateToDoc('literature', '底物特异性研究')">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                                    关联文档
+                                </a>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="scroll-hint">
-                    <span>↓</span> 向下滚动查看更多任务
                 </div>
             </section>
         </div>
 
         <!-- 编辑模式内容 -->
         <div class="task-edit-container" id="taskEditMode">
+            <div class="edit-title-area" style="display:none;">
+                <div class="task-content-header-left">
+                    <h1>管理任务</h1>
+                    <p>统一调度研发任务，高效追踪进度与成果。</p>
+                </div>
+                <div class="mode-switch-inline">
+                    <button class="mode-btn" onclick="switchTaskMode('read')">查看任务</button>
+                    <button class="mode-btn active" onclick="switchTaskMode('edit')">管理任务</button>
+                </div>
+            </div>
             <div class="edit-layout">
-                <!-- 左侧：任务收集表 -->
+                <!-- 左侧：任务列表 -->
                 <div class="task-table-card">
                     <div class="card-header">
-                        <h3>任务收集表</h3>
-                        <p class="card-desc">直接编辑任务字段，保存后写回任务 Markdown。</p>
+                        <h3>任务列表</h3>
+                        <p class="card-desc">选中一条任务后可点击"重新编辑"修改内容。</p>
                     </div>
                     <div class="table-actions">
-                        <button class="btn-add-row" onclick="addTableRow()">+ 新增行</button>
                         <button class="btn-action" onclick="deleteSelectedRow()">删除</button>
-                        <button class="btn-action btn-primary">保存</button>
+                        <button class="btn-action btn-primary" onclick="reEditSelectedRow()">重新编辑</button>
                     </div>
                     <div class="table-container">
                         <table class="task-table">
                             <thead>
                                 <tr>
-                                    <th style="width:30px"><input type="checkbox" id="selectAll" onchange="selectAllRows(this)"></th>
+                                    <th style="width:30px"></th>
                                     <th>任务名称</th>
                                     <th>优先级</th>
                                     <th>栏目</th>
@@ -449,66 +354,60 @@
                                 </tr>
                             </thead>
                             <tbody id="taskTableBody">
-                                <tr>
-                                    <td><input type="checkbox" class="row-checkbox" onchange="onRowCheck(this)"></td>
+                                <tr onclick="selectTaskRow(this)" data-task-name="酶活性筛选数据分析" data-task-priority="高" data-task-category="项目" data-task-project="高效酶改造项目" data-task-sub="酶筛选" data-task-detail="分析酶活性筛选实验数据，整理成报告" data-task-status="进行中" data-task-deadline="2026/06/19">
+                                    <td><input type="radio" name="taskRadio" class="row-radio"></td>
                                     <td>酶活性筛选数据分析</td>
-                                    <td><select class="priority-select"><option value="高" selected>高</option><option value="中">中</option><option value="低">低</option></select></td>
-                                    <td>
-                                        <select class="level-select category-select"><option value="项目" selected>项目</option><option value="报告">报告</option><option value="文献">文献</option><option value="SOP">SOP</option><option value="软件">软件</option><option value="写作">写作</option><option value="其他">其他</option></select>
-                                    </td>
-                                    <td><input class="level-combo" list="project-list" value="高效酶改造项目" placeholder="输入或选择项目"></td><td><span class="sub-text" onclick="editSub(this)">酶筛选</span><input class="sub-input" value="酶筛选" onblur="saveSub(this)" onkeydown="if(event.key==='Enter')this.blur()"></td>
+                                    <td>高</td>
+                                    <td>项目</td>
+                                    <td>高效酶改造项目</td>
+                                    <td>酶筛选</td>
                                     <td>分析酶活性筛选实验数据，整理成报告</td>
                                     <td><span class="status-badge 进行中">进行中</span></td>
-                                    <td><input type="date" class="date-picker" value="2026-06-19"></td>
+                                    <td>今天 18:00</td>
                                 </tr>
-                                <tr>
-                                    <td><input type="checkbox" class="row-checkbox" onchange="onRowCheck(this)"></td>
+                                <tr onclick="selectTaskRow(this)" data-task-name="发酵实验周报撰写" data-task-priority="中" data-task-category="报告" data-task-project="发酵工艺优化项目" data-task-sub="周报汇总" data-task-detail="对比本批次和上一批次OD、产量、异常点，整理成汇报文字" data-task-status="待开始" data-task-deadline="本周五">
+                                    <td><input type="radio" name="taskRadio" class="row-radio"></td>
                                     <td>发酵实验周报撰写</td>
-                                    <td><select class="priority-select"><option value="高">高</option><option value="中" selected>中</option><option value="低">低</option></select></td>
-                                    <td>
-                                        <select class="level-select category-select"><option value="项目">项目</option><option value="报告" selected>报告</option><option value="文献">文献</option><option value="SOP">SOP</option><option value="软件">软件</option><option value="写作">写作</option><option value="其他">其他</option></select>
-                                    </td>
-                                    <td><input class="level-combo" list="project-list" value="发酵工艺优化项目" placeholder="输入或选择项目"></td><td><span class="sub-text" onclick="editSub(this)">周报汇总</span><input class="sub-input" value="周报汇总" onblur="saveSub(this)" onkeydown="if(event.key==='Enter')this.blur()"></td>
-                                    <td>对比本批次和上一批次 OD、产量、异常点，整理成汇报文字</td>
+                                    <td>中</td>
+                                    <td>报告</td>
+                                    <td>发酵工艺优化项目</td>
+                                    <td>周报汇总</td>
+                                    <td>对比本批次和上一批次OD、产量、异常点，整理成汇报文字</td>
                                     <td><span class="status-badge 待开始">待开始</span></td>
-                                    <td><input type="date" class="date-picker" value="2026-06-20"></td>
+                                    <td>本周五</td>
                                 </tr>
-                                <tr>
-                                    <td><input type="checkbox" class="row-checkbox" onchange="onRowCheck(this)"></td>
+                                <tr onclick="selectTaskRow(this)" data-task-name="SOP 文档修订" data-task-priority="高" data-task-category="SOP" data-task-project="实验室安全" data-task-sub="" data-task-detail="修订蛋白纯化SOP文档，更新操作步骤" data-task-status="进行中" data-task-deadline="本周五">
+                                    <td><input type="radio" name="taskRadio" class="row-radio"></td>
                                     <td>SOP 文档修订</td>
-                                    <td><select class="priority-select"><option value="高" selected>高</option><option value="中">中</option><option value="低">低</option></select></td>
-                                    <td>
-                                        <select class="level-select category-select"><option value="项目">项目</option><option value="报告">报告</option><option value="文献">文献</option><option value="SOP" selected>SOP</option><option value="软件">软件</option><option value="写作">写作</option><option value="其他">其他</option></select>
-                                    </td>
-                                    <td><input class="level-combo" list="project-list" value="实验室安全" placeholder="输入或选择项目"></td><td><span class="sub-text" onclick="editSub(this)">蛋白纯化 SOP</span><input class="sub-input" value="蛋白纯化 SOP" onblur="saveSub(this)" onkeydown="if(event.key==='Enter')this.blur()"></td>
-                                    <td>修订蛋白纯化 SOP 文档，更新操作步骤</td>
+                                    <td>高</td>
+                                    <td>SOP</td>
+                                    <td>实验室安全</td>
+                                    <td></td>
+                                    <td>修订蛋白纯化SOP文档，更新操作步骤</td>
                                     <td><span class="status-badge 进行中">进行中</span></td>
-                                    <td><input type="date" class="date-picker" value="2026-06-20"></td>
+                                    <td>本周五</td>
                                 </tr>
-                                <tr>
-                                    <td><input type="checkbox" class="row-checkbox" onchange="onRowCheck(this)"></td>
+                                <tr onclick="selectTaskRow(this)" data-task-name="数据分析脚本优化" data-task-priority="中" data-task-category="软件" data-task-project="数据分析平台" data-task-sub="" data-task-detail="优化Python数据分析脚本，提高运行效率" data-task-status="待开始" data-task-deadline="本周日">
+                                    <td><input type="radio" name="taskRadio" class="row-radio"></td>
                                     <td>数据分析脚本优化</td>
-                                    <td><select class="priority-select"><option value="高">高</option><option value="中" selected>中</option><option value="低">低</option></select></td>
-                                    <td>
-                                        <select class="level-select category-select"><option value="项目">项目</option><option value="报告">报告</option><option value="文献">文献</option><option value="SOP">SOP</option><option value="软件" selected>软件</option><option value="写作">写作</option><option value="其他">其他</option></select>
-                                    </td>
-                                    <td><input class="level-combo" list="project-list" value="数据分析平台" placeholder="输入或选择项目"></td><td><span class="sub-text" onclick="editSub(this)">数据分析平台</span><input class="sub-input" value="数据分析平台" onblur="saveSub(this)" onkeydown="if(event.key==='Enter')this.blur()"></td>
-                                    <td>优化 Python 数据分析脚本，提高运行效率</td>
+                                    <td>中</td>
+                                    <td>软件</td>
+                                    <td>数据分析平台</td>
+                                    <td></td>
+                                    <td>优化Python数据分析脚本，提高运行效率</td>
                                     <td><span class="status-badge 待开始">待开始</span></td>
-                                    <td><input type="date" class="date-picker" value="2026-06-22"></td>
+                                    <td>本周日</td>
                                 </tr>
-                                <tr>
-                                    <td><input type="checkbox" class="row-checkbox" onchange="onRowCheck(this)"></td>
+                                <tr onclick="selectTaskRow(this)" data-task-name="文献阅读与摘要整理" data-task-priority="低" data-task-category="文献" data-task-project="酶学综述" data-task-sub="底物特异性研究" data-task-detail="阅读底物特异性相关文献，整理摘要笔记" data-task-status="待开始" data-task-deadline="下周一">
+                                    <td><input type="radio" name="taskRadio" class="row-radio"></td>
                                     <td>文献阅读与摘要整理</td>
-                                    <td><select class="priority-select"><option value="高">高</option><option value="中">中</option><option value="低" selected>低</option></select></td>
-                                    <td>
-                                        <select class="level-select category-select"><option value="项目">项目</option><option value="报告">报告</option><option value="文献" selected>文献</option><option value="SOP">SOP</option><option value="软件">软件</option><option value="写作">写作</option><option value="其他">其他</option></select>
-                                    </td>
-                                    <td><input class="level-combo" list="project-list" value="酶学综述" placeholder="输入或选择项目"></td>
-                                    <td><span class="sub-text" onclick="editSub(this)">底物特异性研究</span><input class="sub-input" value="底物特异性研究" onblur="saveSub(this)" onkeydown="if(event.key==='Enter')this.blur()"></td>
+                                    <td>低</td>
+                                    <td>文献</td>
+                                    <td>酶学综述</td>
+                                    <td>底物特异性研究</td>
                                     <td>阅读底物特异性相关文献，整理摘要笔记</td>
                                     <td><span class="status-badge 待开始">待开始</span></td>
-                                    <td><input type="date" class="date-picker" value="2026-06-23"></td>
+                                    <td>下周一</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -517,7 +416,7 @@
                         共 5 条任务
                     </div>
                     
-                    <!-- 任务列表（已完成项目） -->
+                    <!-- 已完成任务列表 -->
                     <div class="completed-task-section">
                         <div class="card-header">
                             <h3>已完成任务列表</h3>
@@ -527,6 +426,7 @@
                             <table class="task-table completed-table">
                                 <thead>
                                     <tr>
+                                        <th style="width:30px"></th>
                                         <th>任务名称</th>
                                         <th>栏目</th>
                                         <th>分类</th>
@@ -536,33 +436,36 @@
                                         <th>完成日期</th>
                                     </tr>
                                 </thead>
-                                <tbody id="taskTableBody">
+                                <tbody>
                                     <tr>
+                                        <td><input type="radio" name="completedRadio" class="row-radio"></td>
                                         <td>高效酶筛选实验</td>
                                         <td>项目</td>
                                         <td>高效酶改造项目</td>
                                         <td>酶筛选</td>
                                         <td>完成 50 个酶样品的活性筛选</td>
-                                        <td><input type="date" class="date-picker" value="2024-01-15"></td>
-                                        <td><input type="date" class="date-picker" value="2024-01-20"></td>
+                                        <td>2024/01/15</td>
+                                        <td>2024/01/20</td>
                                     </tr>
                                     <tr>
+                                        <td><input type="radio" name="completedRadio" class="row-radio"></td>
                                         <td>月报总结撰写</td>
                                         <td>报告</td>
                                         <td>月报总结</td>
                                         <td></td>
                                         <td>撰写 2024年1月研发月报</td>
-                                        <td><input type="date" class="date-picker" value="2024-01-25"></td>
-                                        <td><input type="date" class="date-picker" value="2024-01-31"></td>
+                                        <td>2024/01/25</td>
+                                        <td>2024/01/31</td>
                                     </tr>
                                     <tr>
+                                        <td><input type="radio" name="completedRadio" class="row-radio"></td>
                                         <td>HPLC 操作规程更新</td>
                                         <td>SOP</td>
                                         <td>仪器操作</td>
                                         <td>HPLC操作规程</td>
                                         <td>更新 HPLC 操作规程文档</td>
-                                        <td><input type="date" class="date-picker" value="2024-02-01"></td>
-                                        <td><input type="date" class="date-picker" value="2024-02-05"></td>
+                                        <td>2024/02/01</td>
+                                        <td>2024/02/05</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -580,7 +483,7 @@
                     </div>
                     <div class="ai-hint">
                         <p><strong>输入要求：</strong>请至少输入：详情、优先级、截止日期。</p>
-                        <p>其他字段（名称、栏目、项目、子项目、状态）由 AI 自动判断。</p>
+                        <p>其他字段（名称、栏目、分类、小类、状态）由 AI 自动判断。</p>
                     </div>
                     <div class="ai-input-area">
                         <label>输入任务描述</label>
@@ -595,34 +498,36 @@
                         <div class="preview-content">
                             <div class="preview-item">
                                 <span class="preview-label">名称：</span>
-                                <input class="preview-edit" value="发酵实验周报撰写" />
+                                <input class="preview-edit" id="previewName" value="" />
                             </div>
                             <div class="preview-item">
                                 <span class="preview-label">栏目：</span>
-                                <select class="preview-edit">
-                                    <option value="project">项目</option>
-                                    <option value="report" selected>报告</option>
-                                    <option value="literature">文献</option>
-                                    <option value="sop">SOP</option>
-                                    <option value="software">软件</option>
-                                    <option value="writing">写作</option>
+                                <select class="preview-edit" id="previewLevel">
+                                    <option value="项目">项目</option>
+                                    <option value="报告">报告</option>
+                                    <option value="文献">文献</option>
+                                    <option value="SOP">SOP</option>
+                                    <option value="软件">软件</option>
+                                    <option value="写作">写作</option>
                                 </select>
                             </div>
                             <div class="preview-item">
-                                <span class="preview-label">项目：</span>
-                                <input class="preview-edit" value="发酵工艺优化项目" />
+                                <span class="preview-label">分类：</span>
+                                <input class="preview-edit" id="previewProject" list="previewCategoryList" placeholder="输入或选择分类" />
+                                <datalist id="previewCategoryList"></datalist>
                             </div>
                             <div class="preview-item">
-                                <span class="preview-label">子项目：</span>
-                                <input class="preview-edit" value="" placeholder="可为空" />
+                                <span class="preview-label">小类：</span>
+                                <input class="preview-edit" id="previewSub" list="previewSubList" placeholder="输入或选择小类" />
+                                <datalist id="previewSubList"></datalist>
                             </div>
                             <div class="preview-item">
                                 <span class="preview-label">详情：</span>
-                                <textarea class="preview-edit preview-edit-detail" placeholder="任务详情描述">对比本批次和上一批次 OD、产量、异常点，整理成汇报文字</textarea>
+                                <textarea class="preview-edit preview-edit-detail" id="previewDetail" placeholder="任务详情描述"></textarea>
                             </div>
                             <div class="preview-item">
                                 <span class="preview-label">状态：</span>
-                                <select class="preview-edit">
+                                <select class="preview-edit" id="previewStatus">
                                     <option value="待开始" selected>待开始</option>
                                     <option value="进行中">进行中</option>
                                     <option value="已完成">已完成</option>
@@ -631,12 +536,12 @@
                             </div>
                             <div class="preview-item">
                                 <span class="preview-label">截止日期：</span>
-                                <input class="preview-edit" value="本周五" />
+                                <input class="preview-edit" id="previewDeadline" value="" type="date" />
                             </div>
                         </div>
                         <div class="preview-actions">
-                            <button class="btn-confirm">加入表格</button>
-                            <button class="btn-retry">重新解析</button>
+                            <button class="btn-confirm" onclick="submitEditedTask()">提交</button>
+                            <button class="btn-retry" onclick="clearPreview()">清空</button>
                         </div>
                         <p class="preview-hint">AI 解析结果仅供参考，请确认后保存。</p>
                     </div>
@@ -645,22 +550,339 @@
         </div>
     </div>
 
-    <!-- 文档页面（其他栏目） -->
-    <main class="doc-page" id="docPage">
-        <div style="padding-top: 72px; height: calc(100vh - 72px); display: flex;">
-            <aside style="width: 260px; background: white; border-right: 1px solid #e2e8f0; padding: 16px;">
-                <div style="font-size: 12px; font-weight: 600; color: #94a3b8; padding: 12px 16px; border-bottom: 1px solid #e2e8f0;">导航</div>
-                <div id="navTree" style="padding-top: 8px;"></div>
+    <!-- 项目总览页面 -->
+    <main class="project-page" id="projectPage">
+        <div class="project-layout">
+            <!-- 左侧：项目内容导航栏 -->
+            <aside class="project-sidebar" id="projectSidebar">
+                <div class="project-tree" id="projectTree"></div>
             </aside>
-            
-            <div style="flex: 1; background: #f8fafc; padding: 24px;">
-                <h2 id="docTitle" style="font-size: 24px; margin-bottom: 16px;">请选择一个文件</h2>
-                <p style="color: #64748b;">从左侧导航选择一个文件查看内容</p>
+
+            <!-- 中间：项目总览内容区 -->
+            <div class="project-main">
+                <div class="project-header">
+                    <div class="project-title-section">
+                        <h1 id="overviewTitle">项目总览</h1>
+                        <p id="overviewDescription">在这里，你可以浏览本地知识库中的所有项目，查看项目结构，快速进入文档，并创建新的文件或文件夹。</p>
+                        <div class="project-actions">
+                            <button class="btn btn-primary" onclick="showNewFileModal()">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                                新建文件
+                            </button>
+                            <button class="btn btn-secondary" onclick="showNewFolderModal()">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>
+                                新建文件夹
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 项目与最近打开 -->
+                <section class="project-section">
+                    <h2 class="section-title" id="overviewSectionTitle">最近打开的项目</h2>
+                    <div class="project-grid" id="projectCardGrid">
+                        <!-- 项目卡片由JS动态生成 -->
+                    </div>
+                </section>
             </div>
         </div>
     </main>
 
-    <script src="js/app.js"></script>
+    <!-- 文档页面（三栏项目文档站） -->
+    <main class="doc-page" id="docPage">
+        <div class="doc-layout">
+            <!-- 左侧：项目文件树 -->
+            <aside class="doc-sidebar" id="docSidebar">
+                <div class="doc-sidebar-actions" style="padding:8px 12px; display:flex; gap:4px; justify-content:flex-end;">
+                    <button class="doc-sidebar-btn" title="新建" onclick="ctxNewFile()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                    <button class="doc-sidebar-btn" title="刷新" onclick="docTreeRefresh()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                    </button>
+                </div>
+                <div class="doc-tree" id="docTree"></div>
+            </aside>
+
+            <!-- 中间：内容区 -->
+            <div class="doc-main">
+                <!-- 顶部路径 + 模式切换 -->
+                <div class="doc-toolbar">
+                    <div class="doc-breadcrumb" id="docBreadcrumb">
+                        <span>项目</span>
+                        <span class="doc-breadcrumb-sep">/</span>
+                        <span>新橙皮苷</span>
+                        <span class="doc-breadcrumb-sep">/</span>
+                        <span>酶筛选</span>
+                        <span class="doc-breadcrumb-sep">/</span>
+                        <span class="doc-breadcrumb-current">02_筛选结果.md</span>
+                    </div>
+                    <div class="doc-mode-switch">
+                        <button class="doc-save-btn" id="docSaveButton" onclick="saveCurrentDocument()">保存</button>
+                        <button class="doc-mode-btn active" id="docModeRead" onclick="switchDocMode('read')">阅读模式</button>
+                        <button class="doc-mode-btn" id="docModeEdit" onclick="switchDocMode('edit')">编辑模式</button>
+                    </div>
+                </div>
+
+                <!-- 阅读模式内容 -->
+                <div class="doc-read-content" id="docReadContent">
+                    <div class="markdown-body" id="docMarkdownBody">
+                        <h1>筛选结果</h1>
+
+                        <h2>1. 项目背景</h2>
+                        <p>本实验旨在筛选对新橙皮苷具有高转化效率的酶，并评估其产物得率和稳定性。通过对自建酶库 E01-E12 的系统筛选，我们希望找到最优的催化酶用于后续工业化放大。</p>
+
+                        <h2>2. 实验设计</h2>
+                        <ul>
+                            <li>底物：新橙皮苷</li>
+                            <li>酶库来源：自建酶库 E01-E12</li>
+                            <li>反应条件：30℃，pH 7.0，反应时间 24 h</li>
+                            <li>检测方法：HPLC 定量分析转化率和产物得率</li>
+                        </ul>
+
+                        <h2>3. 数据结果</h2>
+
+                        <h3>3.1 转化率结果</h3>
+                        <p>下表展示了不同酶编号对新橙皮苷的转化效率：</p>
+                        <table>
+                            <thead>
+                                <tr><th>酶编号</th><th>转化率（%）</th><th>产物得率（%）</th><th>重复 1（%）</th><th>重复 2（%）</th><th>平均值（%）</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>E01</td><td>85.3</td><td>78.6</td><td>84.5</td><td>86.1</td><td>85.3</td></tr>
+                                <tr><td>E02</td><td>92.7</td><td>87.4</td><td>91.3</td><td>94.1</td><td>92.7</td></tr>
+                                <tr><td>E03</td><td>76.1</td><td>71.2</td><td>75.4</td><td>76.8</td><td>76.1</td></tr>
+                                <tr><td>E04</td><td>68.9</td><td>63.5</td><td>68.2</td><td>69.6</td><td>68.9</td></tr>
+                                <tr><td>E05</td><td>91.2</td><td>85.1</td><td>90.5</td><td>91.9</td><td>91.2</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h3>3.2 产物得率结果</h3>
+                        <p>在最优条件下，E02 和 E05 表现出最高的产物得率，分别为 87.4% 和 85.1%。两者转化率均超过 90%，具有工业化应用潜力。</p>
+
+                        <h3>3.3 稳定性结果</h3>
+                        <p>对 E02 和 E05 进行连续 5 批次重复实验，结果显示转化率波动在 ±2% 以内，表明酶的稳定性良好。</p>
+
+                        <h2>4. 问题分析</h2>
+                        <p>在筛选过程中发现，部分酶在反应后期出现活性下降现象，可能与底物抑制或产物反馈抑制有关。后续需要进一步优化反应条件。</p>
+
+                        <h2>5. 下一步计划</h2>
+                        <ul>
+                            <li>对 E02 和 E05 进行固定化处理，提高重复使用性</li>
+                            <li>优化反应温度和 pH 条件，提升转化率</li>
+                            <li>开展 100 mL 规模的放大实验</li>
+                        </ul>
+                    </div>
+
+                    <div class="doc-nav-footer">
+                        <a class="doc-nav-prev" href="#" onclick="docOpenFile('project','新橙皮苷/酶筛选','01_筛选方案.md'); return false;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                            01_筛选方案.md
+                        </a>
+                        <a class="doc-nav-next" href="#" onclick="docOpenFile('project','新橙皮苷/酶筛选','03_数据分析.md'); return false;">
+                            03_数据分析.md
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 编辑模式内容 -->
+                <div class="doc-edit-content" id="docEditContent" style="display:none;">
+                    <div class="doc-editor-toolbar">
+                        <button class="editor-tool" type="button" title="撤销" onclick="richEditorCommand('undo')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg></button>
+                        <button class="editor-tool" type="button" title="重做" onclick="richEditorCommand('redo')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg></button>
+                        <span class="editor-divider"></span>
+                        <select class="editor-block-select" id="editorBlockSelect" title="段落与标题层级" onchange="setEditorBlockStyle(this.value)">
+                            <option value="p">正文</option>
+                            <option value="h1">一级标题</option>
+                            <option value="h2">二级标题</option>
+                            <option value="h3">三级标题</option>
+                        </select>
+                        <button class="editor-tool" type="button" title="加粗" onclick="richEditorCommand('bold')"><strong>B</strong></button>
+                        <button class="editor-tool" type="button" title="斜体" onclick="richEditorCommand('italic')"><em>I</em></button>
+                        <span class="editor-divider"></span>
+                        <button class="editor-tool" type="button" title="无序列表" onclick="richEditorCommand('insertUnorderedList')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                        </button>
+                        <button class="editor-tool" type="button" title="插入表格" onclick="insertEditorTable()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line></svg>
+                        </button>
+                        <button class="editor-tool" type="button" title="插入图片" onclick="chooseEditorImage()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                        </button>
+                        <button class="editor-tool" type="button" title="插入链接" onclick="insertEditorLink()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                        </button>
+                        <span class="editor-toolbar-spacer"></span>
+                        <button class="editor-source-toggle" id="editorSourceToggle" type="button" onclick="toggleEditorSourceMode()">Markdown 源码</button>
+                    </div>
+                    <div class="doc-editor-body">
+                        <div class="editor-line-numbers" id="editorLineNumbers"></div>
+                        <div class="rich-editor markdown-body" id="richEditor" contenteditable="true" spellcheck="true" oninput="markRichDocumentDirty()"></div>
+                        <textarea class="editor-textarea" id="editorTextarea" spellcheck="false" oninput="markDocumentDirty()" onscroll="editorSyncScroll()"></textarea>
+                        <input type="file" id="editorImageInput" accept="image/png,image/jpeg,image/gif,image/webp" hidden onchange="uploadEditorImage(this.files[0]); this.value='';">
+                    </div>
+                    <div class="doc-editor-statusbar">
+                        <span id="editorCursorPos">行 1，列 1</span>
+                        <span id="editorCharCount">1,286 个字符</span>
+                        <span id="editorFormatLabel">所见即所得 · Markdown</span>
+                        <span class="editor-saved" id="editorSaveStatus">已保存</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧面板 -->
+            <aside class="doc-aside" id="docAside">
+                <!-- 阅读模式：页面导航 -->
+                <div class="doc-toc-panel" id="docTocPanel">
+                    <div class="doc-aside-title">页面导航</div>
+                    <div class="doc-toc-list" id="docTocList">
+                        <a class="doc-toc-item active" href="#h1">1. 项目背景</a>
+                        <a class="doc-toc-item" href="#h2">2. 实验设计</a>
+                        <a class="doc-toc-item" href="#h3">3. 数据结果</a>
+                        <a class="doc-toc-sub" href="#h31">3.1 转化率结果</a>
+                        <a class="doc-toc-sub" href="#h32">3.2 产物得率结果</a>
+                        <a class="doc-toc-sub" href="#h33">3.3 稳定性结果</a>
+                        <a class="doc-toc-item" href="#h4">4. 问题分析</a>
+                        <a class="doc-toc-item" href="#h5">5. 下一步计划</a>
+                    </div>
+                </div>
+
+                <!-- 编辑模式：辅助面板 -->
+                <div class="doc-edit-aside" id="docEditAside" style="display:none;">
+                    <div class="doc-aside-tabs">
+                        <button class="doc-aside-tab active" onclick="switchDocAsideTab(this,'structure')">页面结构</button>
+                        <button class="doc-aside-tab" onclick="switchDocAsideTab(this,'ai')">AI 排版</button>
+                        <button class="doc-aside-tab" onclick="switchDocAsideTab(this,'info')">文件信息</button>
+                    </div>
+                    <div class="doc-aside-tab-content" id="asideStructure">
+                        <div class="doc-structure-tree">
+                            <div class="structure-item h1">筛选结果</div>
+                            <div class="structure-item h2">1. 项目背景</div>
+                            <div class="structure-item h2">2. 实验设计</div>
+                            <div class="structure-item h2">3. 数据结果</div>
+                            <div class="structure-item h3">3.1 转化率结果</div>
+                            <div class="structure-item h3">3.2 产物得率结果</div>
+                            <div class="structure-item h3">3.3 稳定性结果</div>
+                            <div class="structure-item h2">4. 问题分析</div>
+                            <div class="structure-item h2">5. 下一步计划</div>
+                        </div>
+                        <div class="doc-quick-actions">
+                            <div class="doc-quick-title">快速操作</div>
+                            <button class="doc-quick-btn">检查标题层级</button>
+                            <button class="doc-quick-btn">整理表格格式</button>
+                            <button class="doc-quick-btn">检查图片路径</button>
+                            <button class="doc-quick-btn">清理多余空行</button>
+                        </div>
+                        <div class="doc-ai-hint">提示：AI 排版不会修改实验数据和结论，请放心使用。</div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <!-- 新建文件弹窗 -->
+    <div class="modal-overlay" id="newFileModal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>新建文件</h3>
+                <button class="modal-close" onclick="closeNewFileModal()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label id="newFileLocationLabel">所属项目 / 放置位置</label>
+                    <select id="newFileLocation" class="form-select">
+                        <option value="新橙皮苷/酶筛选">新橙皮苷 / 酶筛选</option>
+                        <option value="新橙皮苷/结构验证">新橙皮苷 / 结构验证</option>
+                        <option value="FR1 发酵/批次记录">FR1 发酵 / 批次记录</option>
+                        <option value="FR1 发酵/周报总结">FR1 发酵 / 周报总结</option>
+                        <option value="FN1 发酵/批次记录">FN1 发酵 / 批次记录</option>
+                        <option value="FN1 发酵/问题分析">FN1 发酵 / 问题分析</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>文件名称</label>
+                    <input type="text" id="newFileName" class="form-input" placeholder="输入文件名，如：04_进一步验证.md">
+                </div>
+                <p class="modal-hint">将在所选目录下创建一个 Markdown 文件，并在左侧项目树中显示。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeNewFileModal()">取消</button>
+                <button class="btn btn-primary" onclick="createNewFile()">创建文件</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新建文件夹弹窗 -->
+    <div class="modal-overlay" id="newFolderModal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>新建文件夹</h3>
+                <button class="modal-close" onclick="closeNewFolderModal()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label id="newFolderProjectLabel">所属项目</label>
+                    <select id="newFolderProject" class="form-select">
+                        <option value="新橙皮苷">新橙皮苷</option>
+                        <option value="FR1 发酵">FR1 发酵</option>
+                        <option value="FN1 发酵">FN1 发酵</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>文件夹名称</label>
+                    <input type="text" id="newFolderName" class="form-input" placeholder="输入文件夹名称">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeNewFolderModal()">取消</button>
+                <button class="btn btn-primary" onclick="createNewFolder()">创建文件夹</button>
+            </div>
+        </div>
+    </div>
+    <div class="tree-context-menu" id="treeContextMenu">
+        <div class="tree-context-item" id="ctxRenameBtn" onclick="ctxRename()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+            重命名
+        </div>
+        <div class="tree-context-item" onclick="ctxNewFile()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+            新建文件
+        </div>
+        <div class="tree-context-item" onclick="ctxNewFolder()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>
+            新建文件夹
+        </div>
+        <div class="tree-context-divider"></div>
+        <div class="tree-context-item danger" onclick="ctxDelete()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            删除
+        </div>
+    </div>
+    <script src="node_modules/marked/lib/marked.umd.js"></script>
+    <script src="node_modules/dompurify/dist/purify.min.js"></script>
+    <script src="node_modules/turndown/dist/turndown.js"></script>
+    <script src="node_modules/turndown-plugin-gfm/dist/turndown-plugin-gfm.js"></script>
+    <script src="js/app.js?v=6"></script>
+    <script>
+        // 每次加载/刷新页面时，强制显示首页并滚动到顶部
+        window.addEventListener('beforeunload', function() {
+            window.scrollTo(0, 0);
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            window.scrollTo(0, 0);
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+            // 确保首页显示
+            switchTab('home');
+        });
+    </script>
     <datalist id="category-list">
         <option value="项目">
         <option value="报告">
