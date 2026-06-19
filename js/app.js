@@ -46,18 +46,8 @@ function getAllCategories() {
     const cats = ['项目', '报告', '文献', 'SOP', '软件', '写作', '其他'];
     return cats;
 }
-    const cats = new Set(['项目', '报告', '文献', 'SOP', '软件', '写作', '其他']);
-    const tbody = document.getElementById('taskTableBody');
-    if (tbody) {
-        tbody.querySelectorAll('tr').forEach(tr => {
-            const input = tr.querySelector('td:nth-child(4) .level-combo');
-            if (input && input.value) cats.add(input.value.trim());
-        });
-    }
-    return Array.from(cats);
 }
 
-document.addEventListener('input', function(e) {
 
 // 显示保存状态
 function showSaveStatus(msg) {
