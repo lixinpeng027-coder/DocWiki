@@ -1,4 +1,4 @@
-
+﻿
         * {
             margin: 0;
             padding: 0;
@@ -185,7 +185,7 @@
             color: var(--text-primary);
         }
 
-        /* 主题切换开关 */
+        /* 主题切换开�?*/
         .theme-toggle {
             position: relative;
             width: 52px;
@@ -424,7 +424,7 @@
             stroke-linejoin: round;
         }
 
-        /* 响应式 */
+        /* 响应�?*/
         @media (max-width: 1024px) {
             .hero-section {
                 flex-direction: column;
@@ -507,7 +507,7 @@
         .task-list-container {
             max-width: 1100px;
             margin: 0 auto;
-            padding: 0 24px 48px;
+            padding: 0 24px 48px 0;
         }
 
         .task-section {
@@ -597,17 +597,17 @@
             font-weight: 500;
         }
 
-        .priority-badge.高 {
+        .priority-badge.�?{
             background: #fef2f2;
             color: #dc2626;
         }
 
-        .priority-badge.中 {
+        .priority-badge.�?{
             background: #fffbeb;
             color: #d97706;
         }
 
-        .priority-badge.低 {
+        .priority-badge.�?{
             background: #f0fdf4;
             color: #16a34a;
         }
@@ -665,19 +665,19 @@
             border-color: #2563eb;
         }
 
-        .status-btn.待开始 {
+        .status-btn.待开�?{
             background: #f1f5f9;
             color: #475569;
             border-color: transparent;
         }
 
-        .status-btn.进行中 {
+        .status-btn.进行�?{
             background: #dbeafe;
             color: #2563eb;
             border-color: transparent;
         }
 
-        .status-btn.已完成 {
+        .status-btn.已完�?{
             background: #dcfce7;
             color: #16a34a;
             border-color: transparent;
@@ -747,7 +747,7 @@
             font-size: 13px;
         }
 
-        /* 首页和文档页的显示控制 */
+        /* 首页和文档页的显示控�?*/
         .home-page {
             display: block;
         }
@@ -788,9 +788,9 @@
 
         .task-edit-container {
             display: none;
-            max-width: 1100px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 24px 48px;
+            padding: 0 24px 48px 24px;
         }
 
         .task-edit-container.active {
@@ -804,7 +804,7 @@
         }
 
         .task-table-card {
-            flex: 1.7;
+            flex: 2.5;
             background: white;
             border: 1px solid #e2e8f0;
             border-radius: 12px;
@@ -867,6 +867,7 @@
 
         .task-table {
             width: 100%;
+            table-layout: fixed;
             border-collapse: collapse;
             font-size: 13px;
         }
@@ -884,8 +885,12 @@
             padding: 12px 8px;
             border-bottom: 1px solid #f1f5f9;
             color: #1e293b;
-            word-break: break-word;
-            white-space: normal;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+
         }
 
         .task-table tbody tr:hover {
@@ -914,7 +919,7 @@
             border-color: #2563eb;
         }
 
-        /* 已完成任务列表样式 */
+        /* 已完成任务列表样�?*/
         .completed-task-section {
             margin-top: 32px;
             border-top: 1px solid #e2e8f0;
@@ -1016,17 +1021,17 @@
             font-weight: 500;
         }
 
-        .status-badge.待开始 {
+        .status-badge.待开�?{
             background: #f1f5f9;
             color: #475569;
         }
 
-        .status-badge.进行中 {
+        .status-badge.进行�?{
             background: #dbeafe;
             color: #2563eb;
         }
 
-        .status-badge.已完成 {
+        .status-badge.已完�?{
             background: #dcfce7;
             color: #16a34a;
         }
@@ -1208,4 +1213,212 @@
             color: #94a3b8;
             text-align: center;
             margin: 0;
+        }
+
+        /* 任务收集表 - 列宽控制 */
+        .task-table:not(.completed-table) th:nth-child(1),
+        .task-table:not(.completed-table) td:nth-child(1) {
+            width: 130px;
+            white-space: normal;
+            word-break: break-word;
+            vertical-align: middle;
+        }
+
+        .task-table:not(.completed-table) th:nth-child(2),
+        .task-table:not(.completed-table) td:nth-child(2) {
+            width: 70px;
+            text-align: center;
+        }
+
+        .task-table:not(.completed-table) th:nth-child(3),
+        .task-table:not(.completed-table) td:nth-child(3) {
+            width: 80px;
+            text-align: center;
+        }
+
+        .task-table:not(.completed-table) th:nth-child(4),
+        .task-table:not(.completed-table) td:nth-child(4) {
+            width: 100px;
+        }
+
+        .task-table:not(.completed-table) th:nth-child(5),
+        .task-table:not(.completed-table) td:nth-child(5) {
+            width: 80px;
+        }
+
+        .task-table:not(.completed-table) th:nth-child(6),
+        .task-table:not(.completed-table) td:nth-child(6) {
+            white-space: normal;
+            word-break: break-word;
+            vertical-align: middle;
+        }
+
+        .task-table:not(.completed-table) th:nth-child(7),
+        .task-table:not(.completed-table) td:nth-child(7) {
+            width: 80px;
+            text-align: center;
+        }
+
+        .task-table:not(.completed-table) th:nth-child(8),
+        .task-table:not(.completed-table) td:nth-child(8) {
+            width: 120px;
+        }
+        /* 已完成任务列表 - 纯白背景 */
+        .completed-table {
+            background: #ffffff;
+        }
+
+        .completed-table th {
+            background: #f8fafc;
+        }
+
+        .completed-table td {
+            background: #ffffff;
+        }
+
+        /* 已完成任务列表 - 与上方表格相同栏目的列宽一致 */
+        .completed-table td,
+        .completed-table th {
+            vertical-align: middle;
+        }
+
+        .completed-table th:nth-child(1),
+        .completed-table td:nth-child(1) {
+            width: 130px;
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        .completed-table th:nth-child(2),
+        .completed-table td:nth-child(2) {
+            width: 80px;
+            text-align: center;
+        }
+
+        .completed-table th:nth-child(3),
+        .completed-table td:nth-child(3) {
+            width: 100px;
+        }
+
+        .completed-table th:nth-child(4),
+        .completed-table td:nth-child(4) {
+            width: 80px;
+        }
+
+        .completed-table th:nth-child(5),
+        .completed-table td:nth-child(5) {
+            width: 150px;
+            white-space: normal;
+            word-break: break-word;
+        }
+        /* 分类组合框 */
+        .level-combo {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #475569;
+            background: white;
+            outline: none;
+        }
+
+        .level-combo:focus {
+            border-color: #2563eb;
+        }
+
+        /* 优先级下拉 */
+        .priority-select {
+            width: 100%;
+            padding: 4px 6px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            background: white;
+            cursor: pointer;
+            outline: none;
+            text-align: center;
+        }
+
+        .priority-select:focus {
+            border-color: #2563eb;
+        }
+
+        /* 小类点击输入 */
+        .sub-input {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #475569;
+            background: white;
+            outline: none;
+            display: none;
+        }
+
+        .sub-input.active {
+            display: block;
+        }
+
+        .sub-text {
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 13px;
+            padding: 4px 0;
+            display: inline-block;
+            min-width: 60px;
+        }
+
+        .sub-text:hover {
+            color: #2563eb;
+        }
+
+        /* 行选中 */
+        .task-table tbody tr.selected {
+            background: #eff6ff !important;
+            outline: 2px solid #2563eb;
+            outline-offset: -2px;
+        }
+
+        /* 新增行按钮 */
+        .table-actions .btn-add-row {
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px dashed #2563eb;
+            background: transparent;
+            border-radius: 6px;
+            color: #2563eb;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .table-actions .btn-add-row:hover {
+            background: #eff6ff;
+        }
+        /* 已完成任务列表 - 日期列宽 */
+        .completed-table th:nth-child(6),
+        .completed-table td:nth-child(6),
+        .completed-table th:nth-child(7),
+        .completed-table td:nth-child(7) {
+            width: 130px;
+        }
+
+        /* 日期选择器 */
+        .date-picker {
+            width: 100%;
+            padding: 4px 6px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #475569;
+            background: white;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .date-picker:focus {
+            border-color: #2563eb;
         }

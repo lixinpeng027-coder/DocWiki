@@ -1,4 +1,4 @@
-// 导航数据
+﻿﻿// 导航数据
         const navData = {
             task: [
                 { name: '待办事项', file: '待办事项.md' },
@@ -237,4 +237,126 @@
             // 滚动到页面顶部
             document.documentElement.scrollTop = 0;
             document.body.scrollTop = 0;
+        }
+
+        // 小类点击编辑
+        function editSub(span) {
+            const input = span.nextElementSibling;
+            span.style.display = 'none';
+            input.classList.add('active');
+            input.focus();
+            input.select();
+        }
+
+        function saveSub(input) {
+            const span = input.previousElementSibling;
+            span.textContent = input.value || '未设置';
+            span.style.display = '';
+            input.classList.remove('active');
+            markUnsaved();
+        }
+
+        // 新增行
+        function addTableRow() {
+            const tbody = document.getElementById('taskTableBody');
+            const row = document.createElement('tr');
+            row.onclick = function() { selectRow(this); };
+            row.innerHTML = `
+                <td><input class="level-combo" placeholder="输入任务名称" style="width:100%;"></td>
+                <td><select class="priority-select"><option value="中" selected>中</option><option value="高">高</option><option value="低">低</option></select></td>
+                <td><input class="level-combo" list="category-list" value="项目" placeholder="输入或选择分类"></td>
+                <td><input class="level-combo" placeholder="输入项目名称" style="width:100%;"></td>
+                <td><span class="sub-text" onclick="editSub(this)">未设置</span><input class="sub-input" value="" onblur="saveSub(this)" onkeydown="if(event.key==='Enter')this.blur()"></td>
+                <td><input class="level-combo" placeholder="输入详情" style="width:100%;"></td>
+                <td><select class="priority-select"><option value="待开始">待开始</option><option value="进行中" selected>进行中</option><option value="已完成">已完成</option></select></td>
+                <td><input class="level-combo" placeholder="日期" style="width:100%;"></td>
+            `;
+            tbody.appendChild(row);
+            markUnsaved();
+        }
+
+        // 行选中
+        function selectRow(row) {
+            document.querySelectorAll('#taskTableBody tr').forEach(r => r.classList.remove('selected'));
+            row.classList.add('selected');
+        }
+
+        // 标记未保存
+        let hasUnsaved = false;
+        function markUnsaved() {
+            hasUnsaved = true;
+        }
+
+        // 切换页面时提示保存
+        const _baseSwitchTab = window.switchTab;
+        window.switchTab = function(tab) {
+            if (hasUnsaved && tab !== 'task') {
+                if (!confirm('当前有未保存的更改，是否保存？')) {
+                    return;
+                }
+                hasUnsaved = false;
+            }
+            _baseSwitchTab(tab);
+        };
+
+        // 监听表格输入变化标记未保存
+        document.addEventListener('input', function(e) {
+            if (e.target.closest('.task-table')) {
+                markUnsaved();
+            }
+        });
+        // 阅读模式状态变更 - 自动记录日期
+        function changeStatus(btn, status) {
+            const dropdown = btn.closest('.dropdown-menu');
+            const trigger = dropdown.previousElementSibling;
+            const taskCard = trigger.closest('.task-card');
+            
+            trigger.classList.remove('待开始', '进行中', '已完成', '暂停');
+            trigger.classList.add(status);
+            trigger.childNodes[0].textContent = status;
+            
+            dropdown.classList.remove('show');
+            
+            if (status === '进行中') {
+                // 记录开始日期
+                const metaItems = taskCard.querySelectorAll('.task-meta-item');
+                if (metaItems.length > 0 && !metaItems[0].querySelector('.start-date')) {
+                    const today = new Date().toISOString().split('T')[0];
+                    const dateSpan = document.createElement('span');
+                    dateSpan.className = 'start-date';
+                    dateSpan.textContent = ' 开始: ' + today;
+                    dateSpan.style.cssText = 'color:#64748b;font-size:12px;margin-left:8px;';
+                    metaItems[0].appendChild(dateSpan);
+                }
+            }
+            
+            if (status === '已完成') {
+                // 移到已完成任务列表
+                const taskName = taskCard.querySelector('.task-name').textContent;
+                const today = new Date().toISOString().split('T')[0];
+                
+                // 添加到 completed-table
+                const completedTbody = document.querySelector('.completed-table tbody');
+                if (completedTbody) {
+                    const newRow = document.createElement('tr');
+                    newRow.innerHTML = '<td>' + taskName + '</td>' +
+                        '<td>项目</td>' +
+                        '<td>-</td>' +
+                        '<td>-</td>' +
+                        '<td>已完成</td>' +
+                        '<td><input type="date" class="date-picker" value="' + today + '"></td>' +
+                        '<td><input type="date" class="date-picker" value="' + today + '"></td>';
+                    completedTbody.appendChild(newRow);
+                }
+                
+                // 删除原卡片
+                taskCard.remove();
+                
+                // 更新计数
+                const sectionTitle = document.querySelector('.task-section-title span');
+                if (sectionTitle) {
+                    const count = document.querySelectorAll('.task-card').length;
+                    sectionTitle.textContent = count;
+                }
+            }
         }
