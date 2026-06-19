@@ -430,7 +430,7 @@
                     </div>
                     <div class="table-actions">
                         <button class="btn-add-row" onclick="addTableRow()">+ 新增行</button>
-                        <button class="btn-action">删除</button>
+                        <button class="btn-action" onclick="deleteSelectedRow()">删除</button>
                         <button class="btn-action btn-primary">保存</button>
                     </div>
                     <div class="table-container">
@@ -498,7 +498,7 @@
                                     <td>
                                         <input class="level-combo" list="category-list" value="文献" placeholder="输入或选择分类">
                                     </td>
-                                    <td><input class="level-combo" list="project-list" value="酶学综述" placeholder="输入或选择分类"></td>
+                                    <td><input class="level-combo" list="project-list" value="酶学综述" placeholder="输入或选择项目"></td>
                                     <td><span class="sub-text" onclick="editSub(this)">底物特异性研究</span><input class="sub-input" value="底物特异性研究" onblur="saveSub(this)" onkeydown="if(event.key==='Enter')this.blur()"></td>
                                     <td>阅读底物特异性相关文献，整理摘要笔记</td>
                                     <td><span class="status-badge 待开始">待开始</span></td>

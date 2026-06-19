@@ -265,10 +265,10 @@
                 <td><input class="level-combo" placeholder="输入任务名称" style="width:100%;"></td>
                 <td><select class="priority-select"><option value="中" selected>中</option><option value="高">高</option><option value="低">低</option></select></td>
                 <td><input class="level-combo" list="category-list" value="项目" placeholder="输入或选择分类"></td>
-                <td><input class="level-combo" placeholder="输入项目名称" style="width:100%;"></td>
+                <td><input class="level-combo" list="project-list" placeholder="输入或选择项目" style="width:100%;"></td>
                 <td><span class="sub-text" onclick="editSub(this)">未设置</span><input class="sub-input" value="" onblur="saveSub(this)" onkeydown="if(event.key==='Enter')this.blur()"></td>
                 <td><input class="level-combo" placeholder="输入详情" style="width:100%;"></td>
-                <td><select class="priority-select"><option value="待开始">待开始</option><option value="进行中" selected>进行中</option><option value="已完成">已完成</option></select></td>
+                <td><select class="status-select"><option value="待开始">待开始</option><option value="进行中" selected>进行中</option><option value="已完成">已完成</option></select></td>
                 <td><input class="level-combo" placeholder="日期" style="width:100%;"></td>
             `;
             tbody.appendChild(row);
@@ -279,6 +279,19 @@
         function selectRow(row) {
             document.querySelectorAll('#taskTableBody tr').forEach(r => r.classList.remove('selected'));
             row.classList.add('selected');
+        }
+
+        // 删除选中行
+        function deleteSelectedRow() {
+            const selected = document.querySelector('#taskTableBody tr.selected');
+            if (!selected) {
+                alert('请先选中一行');
+                return;
+            }
+            if (confirm('确定删除该行？')) {
+                selected.remove();
+                markUnsaved();
+            }
         }
 
         // 标记未保存
