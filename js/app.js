@@ -116,7 +116,7 @@ if (_origSwitchTaskMode) {
         _origSwitchTaskMode(mode);
     };
 }
-﻿// 导航数据
+// 导航数据
         const navData = {
             task: [
                 { name: '待办事项', file: '待办事项.md' },
