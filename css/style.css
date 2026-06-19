@@ -1422,3 +1422,23 @@
         .date-picker:focus {
             border-color: #2563eb;
         }
+        /* 行复选框 */
+        .row-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #2563eb;
+        }
+
+        #selectAll {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #2563eb;
+        }
+
+        .task-table th:first-child,
+        .task-table td:first-child {
+            width: 30px;
+            text-align: center;
+        }
