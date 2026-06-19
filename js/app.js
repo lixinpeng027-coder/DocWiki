@@ -119,7 +119,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // 更新栏目列表
     updateCategoryList();
 });
 
