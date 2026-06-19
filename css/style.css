@@ -1449,3 +1449,19 @@
             width: 30px;
             text-align: center;
         }
+        /* 栏目下拉框 */
+        .category-select {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #475569;
+            background: white;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .category-select:focus {
+            border-color: #2563eb;
+        }

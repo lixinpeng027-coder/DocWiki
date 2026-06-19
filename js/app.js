@@ -25,7 +25,7 @@ function saveTableData() {
         const checkbox = cells[0].querySelector('.row-checkbox');
         const taskName = cells[1].textContent.trim() || cells[1].querySelector('input')?.value || '';
         const priority = cells[2].querySelector('select')?.value || '中';
-        const category = cells[3].querySelector('input')?.value || cells[3].textContent.trim() || '';
+            const category = cells[3].querySelector('select')?.value || cells[3].textContent.trim() || '';
         const project = cells[4].querySelector('input')?.value || cells[4].textContent.trim() || '';
         const subItem = cells[5].querySelector('.sub-text')?.textContent?.trim() || '';
         const detail = cells[6].textContent.trim() || '';
@@ -43,6 +43,9 @@ function saveTableData() {
 
 // 获取所有已输入的栏目
 function getAllCategories() {
+    const cats = ['项目', '报告', '文献', 'SOP', '软件', '写作', '其他'];
+    return cats;
+}
     const cats = new Set(['项目', '报告', '文献', 'SOP', '软件', '写作', '其他']);
     const tbody = document.getElementById('taskTableBody');
     if (tbody) {
@@ -54,25 +57,7 @@ function getAllCategories() {
     return Array.from(cats);
 }
 
-// 更新栏目 datalist 选项
-function updateCategoryList() {
-    const cats = getAllCategories();
-    const datalist = document.getElementById('category-list');
-    if (datalist) {
-        datalist.innerHTML = cats.map(c => `<option value="${c}">`).join('');
-    }
-}
-
-// 监听栏目输入变化，自动记忆新栏目
 document.addEventListener('input', function(e) {
-    if (e.target.matches('.level-combo[list="category-list"]')) {
-        updateCategoryList();
-        markUnsaved();
-    }
-    if (e.target.closest('.task-table')) {
-        markUnsaved();
-    }
-});
 
 // 显示保存状态
 function showSaveStatus(msg) {
@@ -107,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td><input type="checkbox" class="row-checkbox" onchange="onRowCheck(this)"></td>
                     <td>${row.taskName}</td>
                     <td><select class="priority-select"><option value="高">高</option><option value="中" ${row.priority === '中' ? 'selected' : ''}>中</option><option value="低" ${row.priority === '低' ? 'selected' : ''}>低</option></select></td>
-                    <td><input class="level-combo" list="category-list" value="${row.category}" placeholder="输入或选择栏目"></td>
+                    <td><select class="level-select category-select"><option value="项目">项目</option><option value="报告">报告</option><option value="文献">文献</option><option value="SOP">SOP</option><option value="软件">软件</option><option value="写作">写作</option><option value="其他">其他</option></select></td>
                     <td><input class="level-combo" list="project-list" value="${row.project}" placeholder="输入或选择项目"></td>
                     <td><span class="sub-text" onclick="editSub(this)">${row.subItem || '未设置'}</span><input class="sub-input" value="${row.subItem || ''}" onblur="saveSub(this)" onkeydown="if(event.key==='Enter')this.blur()"></td>
                     <td>${row.detail}</td>
@@ -119,7 +104,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    updateCategoryList();
 });
 
 // 监听编辑模式切换 - 自动保存
