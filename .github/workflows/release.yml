@@ -1,0 +1,62 @@
+name: Publish DocWiki Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify version tag
+        shell: pwsh
+        run: |
+          $packageVersion = (Get-Content package.json | ConvertFrom-Json).version
+          if ("v$packageVersion" -ne "${{ github.ref_name }}") {
+            throw "Tag ${{ github.ref_name }} does not match package.json version v$packageVersion"
+          }
+
+      - name: Test
+        run: npm test
+
+      - name: Build Windows installer
+        shell: pwsh
+        run: npx electron-builder --win nsis --config.directories.output=dist
+        env:
+          ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/
+
+      - name: Create update manifest
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          $installer = "dist/DocWiki-Setup-$version.exe"
+          $downloadUrl = "https://github.com/lixinpeng027-coder/DocWiki/releases/latest/download/DocWiki-Setup-$version.exe"
+          node scripts/create-update-manifest.mjs $installer $downloadUrl "DocWiki $version"
+
+      - name: Publish GitHub Release
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          gh release create "${{ github.ref_name }}" `
+            "dist/DocWiki-Setup-$version.exe" `
+            "dist/latest.json" `
+            --title "DocWiki $version" `
+            --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}

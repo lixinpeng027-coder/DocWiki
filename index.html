@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人研发知识库</title>
+    <title>DocWiki</title>
     <link rel="stylesheet" href="css/style.css">
     
 </head>
@@ -28,12 +28,13 @@
         </nav>
         
         <div class="header-actions">
-            <div class="search-box">
-                    <input type="text" placeholder="搜索知识库...">
+            <div class="search-box" id="searchBox">
+                    <input type="text" placeholder="搜索知识库..." id="searchInput" autocomplete="off">
                     <svg class="search-icon" viewBox="0 0 24 24">
                         <circle cx="11" cy="11" r="8"></circle>
                         <path d="m21 21-4.35-4.35"></path>
                     </svg>
+                    <div class="search-results-dropdown" id="searchResults" style="display:none;"></div>
                 </div>
             <button class="theme-toggle" id="themeToggle" title="切换主题">
                     <div class="toggle-track">
@@ -57,81 +58,26 @@
     <!-- 首页内容 -->
     <main class="home-page" id="homePage">
         <section class="hero-section">
-            <div class="hero-content">
-                <img src="assets/images/wiki-text.png" alt="个人知识库" style="height:240px;display:inline-block;margin-bottom:4px;background-color:#f8fafc;">
-                <h1 class="hero-title">个人知识库</h1>
-                <p class="hero-subtitle" id="heroSubtitle">以 Markdown 为核，沉淀知效，专注研发。</p>
-                <div class="hero-actions">
-                    <button class="btn btn-primary" onclick="document.getElementById('featuresPage').scrollIntoView({behavior:'smooth'})">
-                        开始使用
-                    </button>
-                </div>
+            <div class="hero-content" id="heroContent">
+                <img src="assets/images/logo.png" alt="DocWiki" style="width:80px;height:80px;border-radius:16px;display:block;margin:0 auto 16px auto;">
+                <h1 class="hero-title">DocWiki 个人研发知识库</h1>
             </div>
-        </section>
 
-        <section class="features-section" id="featuresPage">
-            <div class="features-grid">
-                <div class="feature-card" onclick="switchTab('task')">
-                    <div class="feature-icon task"><img src="assets/images/card-task.png" alt="任务" style="width:80px;height:80px;border-radius:16px;display:block;"></div>
-                    <div class="feature-content">
-                        <div class="feature-title">任务</div>
-                    </div>
-                    <div class="feature-arrow">→</div>
-                </div>
-                <div class="feature-card" onclick="switchTab('project')">
-                    <div class="feature-icon project"><img src="assets/images/card-project.png" alt="项目" style="width:80px;height:80px;border-radius:16px;display:block;"></div>
-                    <div class="feature-content">
-                        <div class="feature-title">项目</div>
-                    </div>
-                    <div class="feature-arrow">→</div>
-                </div>
-                <div class="feature-card" onclick="switchTab('literature')">
-                    <div class="feature-icon literature"><img src="assets/images/card-literature.png" alt="文献" style="width:80px;height:80px;border-radius:16px;display:block;"></div>
-                    <div class="feature-content">
-                        <div class="feature-title">文献</div>
-                    </div>
-                    <div class="feature-arrow">→</div>
-                </div>
-                <div class="feature-card" onclick="switchTab('report')">
-                    <div class="feature-icon report"><img src="assets/images/card-report.png" alt="报告" style="width:80px;height:80px;border-radius:16px;display:block;"></div>
-                    <div class="feature-content">
-                        <div class="feature-title">报告</div>
-                    </div>
-                    <div class="feature-arrow">→</div>
-                </div>
-                <div class="feature-card" onclick="switchTab('sop')">
-                    <div class="feature-icon sop"><img src="assets/images/card-sop.png" alt="SOP" style="width:80px;height:80px;border-radius:16px;display:block;"></div>
-                    <div class="feature-content">
-                        <div class="feature-title">SOP</div>
-                    </div>
-                    <div class="feature-arrow">→</div>
-                </div>
-                <div class="feature-card" onclick="switchTab('software')">
-                    <div class="feature-icon software"><img src="assets/images/card-software.png" alt="软件" style="width:80px;height:80px;border-radius:16px;display:block;"></div>
-                    <div class="feature-content">
-                        <div class="feature-title">软件</div>
-                    </div>
-                    <div class="feature-arrow">→</div>
-                </div>
-                <div class="feature-card" onclick="switchTab('writing')">
-                    <div class="feature-icon writing"><img src="assets/images/card-writing.png" alt="写作" style="width:80px;height:80px;border-radius:16px;display:block;"></div>
-                    <div class="feature-content">
-                        <div class="feature-title">写作</div>
-                    </div>
-                    <div class="feature-arrow">→</div>
-                </div>
-                <div class="feature-card" onclick="switchTab('settings')">
-                    <div class="feature-icon settings">
-                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-secondary);">
-                                <circle cx="12" cy="12" r="8.5" stroke-width="3" stroke-dasharray="3.2 3.476"/>
-                                <circle cx="12" cy="12" r="6.5" stroke-width="1.8"/>
-                                <circle cx="12" cy="12" r="2.2" stroke-width="1.8"/>
-                            </svg>
-                        </div>
-                    <div class="feature-content">
-                        <div class="feature-title">设置</div>
-                    </div>
-                    <div class="feature-arrow">→</div>
+            <!-- 对话消息展示区（初始隐藏） -->
+            <div class="hero-conversation" id="heroConversation" style="display:none;">
+                <div class="hero-messages" id="heroMessages"></div>
+            </div>
+
+            <!-- 内嵌 AI 对话输入框 -->
+            <div class="hero-chat-area" id="heroChatArea">
+                <div class="hero-chat-input-container">
+                    <textarea id="heroChatInput" placeholder="输入你的问题，AI 智能体将为你解答..." rows="1" onkeydown="handleHeroChatKeydown(event)"></textarea>
+                    <button class="hero-chat-send-btn" onclick="sendHeroChatMessage()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </section>
@@ -151,168 +97,7 @@
                     <button class="mode-btn" onclick="switchTaskMode('edit')">管理任务</button>
                 </div>
             </div>
-            <!-- 今日任务 -->
-            <section class="task-section">
-                <h2 class="task-section-title">今日任务 <span>2</span></h2>
-                <div class="task-grid">
-                    <div class="task-card-v2">
-                        <div class="tc2-icon">
-                            <img src="assets/images/card-project.png" alt="项目" width="36" height="36" style="border-radius:8px;">
-                        </div>
-                        <div class="tc2-body">
-                            <div class="tc2-header">
-                                <span class="tc2-title">酶活性筛选数据分析</span>
-                                <span class="tc2-badge priority-high">高优先级</span>
-                                <span class="tc2-badge status-progress">进行中</span>
-                            </div>
-                            <p class="tc2-desc">整理本周酶活性筛选实验数据，进行标准化处理与可视化分析，输出初步结论与图表。</p>
-                            <div class="tc2-footer">
-                                <span class="tc2-meta">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                                    截止：今天 18:00
-                                </span>
-                                <span class="tc2-divider"></span>
-                                <span class="tc2-meta">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                                    项目：高效酶改造项目
-                                </span>
-                                <a href="#" class="tc2-link" onclick="navigateToDoc('project', '高效酶改造项目')">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-                                    关联文档
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="task-card-v2">
-                        <div class="tc2-icon">
-                            <img src="assets/images/card-report.png" alt="报告" width="36" height="36" style="border-radius:8px;">
-                        </div>
-                        <div class="tc2-body">
-                            <div class="tc2-header">
-                                <span class="tc2-title">发酵实验周报撰写</span>
-                                <span class="tc2-badge priority-mid">中优先级</span>
-                                <span class="tc2-badge status-pending">待开始</span>
-                            </div>
-                            <p class="tc2-desc">总结本周发酵实验进展，对比 OD、产量和异常点，形成周报文字。</p>
-                            <div class="tc2-footer">
-                                <span class="tc2-meta">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                                    截止：今天
-                                </span>
-                                <span class="tc2-divider"></span>
-                                <span class="tc2-meta">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                                    项目：周报汇总
-                                </span>
-                                <a href="#" class="tc2-link" onclick="navigateToDoc('report', '周报汇总')">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-                                    关联文档
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 本周任务 -->
-            <section class="task-section">
-                <h2 class="task-section-title">本周任务 <span>2</span></h2>
-                <div class="task-grid">
-                    <div class="task-card-v2">
-                        <div class="tc2-icon">
-                            <img src="assets/images/card-sop.png" alt="SOP" width="36" height="36" style="border-radius:8px;">
-                        </div>
-                        <div class="tc2-body">
-                            <div class="tc2-header">
-                                <span class="tc2-title">SOP 文档修订</span>
-                                <span class="tc2-badge priority-high">高优先级</span>
-                                <span class="tc2-badge status-progress">进行中</span>
-                            </div>
-                            <p class="tc2-desc">根据最新实验流程修订蛋白纯化 SOP，补充关键步骤和常见问题处理。</p>
-                            <div class="tc2-footer">
-                                <span class="tc2-meta">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                                    截止：本周五
-                                </span>
-                                <span class="tc2-divider"></span>
-                                <span class="tc2-meta">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                                    项目：蛋白纯化 SOP
-                                </span>
-                                <a href="#" class="tc2-link" onclick="navigateToDoc('sop', '蛋白纯化 SOP')">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-                                    关联文档
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="task-card-v2">
-                        <div class="tc2-icon">
-                            <img src="assets/images/card-software.png" alt="软件" width="36" height="36" style="border-radius:8px;">
-                        </div>
-                        <div class="tc2-body">
-                            <div class="tc2-header">
-                                <span class="tc2-title">数据分析脚本优化</span>
-                                <span class="tc2-badge priority-mid">中优先级</span>
-                                <span class="tc2-badge status-pending">待开始</span>
-                            </div>
-                            <p class="tc2-desc">优化现有数据处理脚本，增加异常数据检测与日志记录功能。</p>
-                            <div class="tc2-footer">
-                                <span class="tc2-meta">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                                    截止：本周日
-                                </span>
-                                <span class="tc2-divider"></span>
-                                <span class="tc2-meta">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                                    项目：数据分析平台
-                                </span>
-                                <a href="#" class="tc2-link" onclick="navigateToDoc('software', '数据分析平台')">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-                                    关联文档
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 全部任务 -->
-            <section class="task-section">
-                <h2 class="task-section-title">全部任务 <span>5</span></h2>
-                <div class="task-grid">
-                    <div class="task-card-v2">
-                        <div class="tc2-icon">
-                            <img src="assets/images/card-literature.png" alt="文献" width="36" height="36" style="border-radius:8px;">
-                        </div>
-                        <div class="tc2-body">
-                            <div class="tc2-header">
-                                <span class="tc2-title">文献阅读与摘要整理</span>
-                                <span class="tc2-badge priority-low">低优先级</span>
-                                <span class="tc2-badge status-pending">待开始</span>
-                            </div>
-                            <p class="tc2-desc">阅读并整理底物特异性预测相关文献，提炼方法与关键结论。</p>
-                            <div class="tc2-footer">
-                                <span class="tc2-meta">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                                    截止：下周一
-                                </span>
-                                <span class="tc2-divider"></span>
-                                <span class="tc2-meta">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                                    项目：底物特异性研究
-                                </span>
-                                <a href="#" class="tc2-link" onclick="navigateToDoc('literature', '底物特异性研究')">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-                                    关联文档
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <!-- 任务卡片由 JS 动态生成（renderReadMode），不再硬编码演示数据 -->
         </div>
 
         <!-- 编辑模式内容 -->
@@ -349,66 +134,11 @@
                                     <th>分类</th>
                                     <th>小类</th>
                                     <th>详情</th>
-                                    <th>状态</th>
                                     <th>截止日期</th>
                                 </tr>
                             </thead>
                             <tbody id="taskTableBody">
-                                <tr onclick="selectTaskRow(this)" data-task-name="酶活性筛选数据分析" data-task-priority="高" data-task-category="项目" data-task-project="高效酶改造项目" data-task-sub="酶筛选" data-task-detail="分析酶活性筛选实验数据，整理成报告" data-task-status="进行中" data-task-deadline="2026/06/19">
-                                    <td><input type="radio" name="taskRadio" class="row-radio"></td>
-                                    <td>酶活性筛选数据分析</td>
-                                    <td>高</td>
-                                    <td>项目</td>
-                                    <td>高效酶改造项目</td>
-                                    <td>酶筛选</td>
-                                    <td>分析酶活性筛选实验数据，整理成报告</td>
-                                    <td><span class="status-badge 进行中">进行中</span></td>
-                                    <td>今天 18:00</td>
-                                </tr>
-                                <tr onclick="selectTaskRow(this)" data-task-name="发酵实验周报撰写" data-task-priority="中" data-task-category="报告" data-task-project="发酵工艺优化项目" data-task-sub="周报汇总" data-task-detail="对比本批次和上一批次OD、产量、异常点，整理成汇报文字" data-task-status="待开始" data-task-deadline="本周五">
-                                    <td><input type="radio" name="taskRadio" class="row-radio"></td>
-                                    <td>发酵实验周报撰写</td>
-                                    <td>中</td>
-                                    <td>报告</td>
-                                    <td>发酵工艺优化项目</td>
-                                    <td>周报汇总</td>
-                                    <td>对比本批次和上一批次OD、产量、异常点，整理成汇报文字</td>
-                                    <td><span class="status-badge 待开始">待开始</span></td>
-                                    <td>本周五</td>
-                                </tr>
-                                <tr onclick="selectTaskRow(this)" data-task-name="SOP 文档修订" data-task-priority="高" data-task-category="SOP" data-task-project="实验室安全" data-task-sub="" data-task-detail="修订蛋白纯化SOP文档，更新操作步骤" data-task-status="进行中" data-task-deadline="本周五">
-                                    <td><input type="radio" name="taskRadio" class="row-radio"></td>
-                                    <td>SOP 文档修订</td>
-                                    <td>高</td>
-                                    <td>SOP</td>
-                                    <td>实验室安全</td>
-                                    <td></td>
-                                    <td>修订蛋白纯化SOP文档，更新操作步骤</td>
-                                    <td><span class="status-badge 进行中">进行中</span></td>
-                                    <td>本周五</td>
-                                </tr>
-                                <tr onclick="selectTaskRow(this)" data-task-name="数据分析脚本优化" data-task-priority="中" data-task-category="软件" data-task-project="数据分析平台" data-task-sub="" data-task-detail="优化Python数据分析脚本，提高运行效率" data-task-status="待开始" data-task-deadline="本周日">
-                                    <td><input type="radio" name="taskRadio" class="row-radio"></td>
-                                    <td>数据分析脚本优化</td>
-                                    <td>中</td>
-                                    <td>软件</td>
-                                    <td>数据分析平台</td>
-                                    <td></td>
-                                    <td>优化Python数据分析脚本，提高运行效率</td>
-                                    <td><span class="status-badge 待开始">待开始</span></td>
-                                    <td>本周日</td>
-                                </tr>
-                                <tr onclick="selectTaskRow(this)" data-task-name="文献阅读与摘要整理" data-task-priority="低" data-task-category="文献" data-task-project="酶学综述" data-task-sub="底物特异性研究" data-task-detail="阅读底物特异性相关文献，整理摘要笔记" data-task-status="待开始" data-task-deadline="下周一">
-                                    <td><input type="radio" name="taskRadio" class="row-radio"></td>
-                                    <td>文献阅读与摘要整理</td>
-                                    <td>低</td>
-                                    <td>文献</td>
-                                    <td>酶学综述</td>
-                                    <td>底物特异性研究</td>
-                                    <td>阅读底物特异性相关文献，整理摘要笔记</td>
-                                    <td><span class="status-badge 待开始">待开始</span></td>
-                                    <td>下周一</td>
-                                </tr>
+                                <!-- 任务数据由 localStorage 动态加载，不再硬编码演示数据 -->
                             </tbody>
                         </table>
                     </div>
@@ -431,47 +161,17 @@
                                         <th>栏目</th>
                                         <th>分类</th>
                                         <th>小类</th>
-                                        <th>详情</th>
                                         <th>开始日期</th>
                                         <th>完成日期</th>
+                                        <th>操作</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
-                                        <td><input type="radio" name="completedRadio" class="row-radio"></td>
-                                        <td>高效酶筛选实验</td>
-                                        <td>项目</td>
-                                        <td>高效酶改造项目</td>
-                                        <td>酶筛选</td>
-                                        <td>完成 50 个酶样品的活性筛选</td>
-                                        <td>2024/01/15</td>
-                                        <td>2024/01/20</td>
-                                    </tr>
-                                    <tr>
-                                        <td><input type="radio" name="completedRadio" class="row-radio"></td>
-                                        <td>月报总结撰写</td>
-                                        <td>报告</td>
-                                        <td>月报总结</td>
-                                        <td></td>
-                                        <td>撰写 2024年1月研发月报</td>
-                                        <td>2024/01/25</td>
-                                        <td>2024/01/31</td>
-                                    </tr>
-                                    <tr>
-                                        <td><input type="radio" name="completedRadio" class="row-radio"></td>
-                                        <td>HPLC 操作规程更新</td>
-                                        <td>SOP</td>
-                                        <td>仪器操作</td>
-                                        <td>HPLC操作规程</td>
-                                        <td>更新 HPLC 操作规程文档</td>
-                                        <td>2024/02/01</td>
-                                        <td>2024/02/05</td>
-                                    </tr>
+                                <tbody id="completedTableBody">
                                 </tbody>
                             </table>
                         </div>
-                        <div class="table-footer">
-                            共 3 条已完成任务
+                        <div class="table-footer" id="completedTableFooter">
+                            共 0 条已完成任务
                         </div>
                     </div>
                 </div>
@@ -490,7 +190,7 @@
                         <textarea class="ai-textarea">这周五前需要完成发酵实验周报，重点对比本批次和上一批次的 OD、产量、异常点，并整理成可以汇报给研发总监的文字。优先级中。</textarea>
                         <div class="char-count">85 / 1000</div>
                     </div>
-                    <button class="btn-ai">
+                    <button class="btn-ai" id="taskParseButton" type="button" onclick="parseTaskDescription()">
                         <span>✨</span> AI 解析
                     </button>
                     <div class="ai-preview">
@@ -535,8 +235,28 @@
                                 </select>
                             </div>
                             <div class="preview-item">
+                                <span class="preview-label">优先级：</span>
+                                <select class="preview-edit" id="previewPriority">
+                                    <option value="高">高</option>
+                                    <option value="中" selected>中</option>
+                                    <option value="低">低</option>
+                                </select>
+                            </div>
+                            <div class="preview-item">
                                 <span class="preview-label">截止日期：</span>
-                                <input class="preview-edit" id="previewDeadline" value="" type="date" />
+                                <input type="date" class="preview-edit date-picker" id="previewDeadline" value="" />
+                            </div>
+                            <div class="preview-item">
+                                <span class="preview-label">当前阶段：</span>
+                                <input class="preview-edit" id="previewCurrentStage" placeholder="当前所处阶段" />
+                            </div>
+                            <div class="preview-item">
+                                <span class="preview-label">下一阶段：</span>
+                                <input class="preview-edit" id="previewNextStage" placeholder="计划推进阶段" />
+                            </div>
+                            <div class="preview-item">
+                                <span class="preview-label">计划日期：</span>
+                                <input type="date" class="preview-edit date-picker" id="previewPlannedDate" value="" />
                             </div>
                         </div>
                         <div class="preview-actions">
@@ -609,15 +329,10 @@
                 <!-- 顶部路径 + 模式切换 -->
                 <div class="doc-toolbar">
                     <div class="doc-breadcrumb" id="docBreadcrumb">
-                        <span>项目</span>
-                        <span class="doc-breadcrumb-sep">/</span>
-                        <span>新橙皮苷</span>
-                        <span class="doc-breadcrumb-sep">/</span>
-                        <span>酶筛选</span>
-                        <span class="doc-breadcrumb-sep">/</span>
-                        <span class="doc-breadcrumb-current">02_筛选结果.md</span>
+                        <span style="color:#94a3b8;">请从左侧文件树选择文档</span>
                     </div>
                     <div class="doc-mode-switch">
+                        <button class="doc-save-btn" id="docHistoryButton" type="button" onclick="showDocumentHistory()">历史版本</button>
                         <button class="doc-save-btn" id="docSaveButton" onclick="saveCurrentDocument()">保存</button>
                         <button class="doc-mode-btn active" id="docModeRead" onclick="switchDocMode('read')">阅读模式</button>
                         <button class="doc-mode-btn" id="docModeEdit" onclick="switchDocMode('edit')">编辑模式</button>
@@ -627,62 +342,11 @@
                 <!-- 阅读模式内容 -->
                 <div class="doc-read-content" id="docReadContent">
                     <div class="markdown-body" id="docMarkdownBody">
-                        <h1>筛选结果</h1>
-
-                        <h2>1. 项目背景</h2>
-                        <p>本实验旨在筛选对新橙皮苷具有高转化效率的酶，并评估其产物得率和稳定性。通过对自建酶库 E01-E12 的系统筛选，我们希望找到最优的催化酶用于后续工业化放大。</p>
-
-                        <h2>2. 实验设计</h2>
-                        <ul>
-                            <li>底物：新橙皮苷</li>
-                            <li>酶库来源：自建酶库 E01-E12</li>
-                            <li>反应条件：30℃，pH 7.0，反应时间 24 h</li>
-                            <li>检测方法：HPLC 定量分析转化率和产物得率</li>
-                        </ul>
-
-                        <h2>3. 数据结果</h2>
-
-                        <h3>3.1 转化率结果</h3>
-                        <p>下表展示了不同酶编号对新橙皮苷的转化效率：</p>
-                        <table>
-                            <thead>
-                                <tr><th>酶编号</th><th>转化率（%）</th><th>产物得率（%）</th><th>重复 1（%）</th><th>重复 2（%）</th><th>平均值（%）</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>E01</td><td>85.3</td><td>78.6</td><td>84.5</td><td>86.1</td><td>85.3</td></tr>
-                                <tr><td>E02</td><td>92.7</td><td>87.4</td><td>91.3</td><td>94.1</td><td>92.7</td></tr>
-                                <tr><td>E03</td><td>76.1</td><td>71.2</td><td>75.4</td><td>76.8</td><td>76.1</td></tr>
-                                <tr><td>E04</td><td>68.9</td><td>63.5</td><td>68.2</td><td>69.6</td><td>68.9</td></tr>
-                                <tr><td>E05</td><td>91.2</td><td>85.1</td><td>90.5</td><td>91.9</td><td>91.2</td></tr>
-                            </tbody>
-                        </table>
-
-                        <h3>3.2 产物得率结果</h3>
-                        <p>在最优条件下，E02 和 E05 表现出最高的产物得率，分别为 87.4% 和 85.1%。两者转化率均超过 90%，具有工业化应用潜力。</p>
-
-                        <h3>3.3 稳定性结果</h3>
-                        <p>对 E02 和 E05 进行连续 5 批次重复实验，结果显示转化率波动在 ±2% 以内，表明酶的稳定性良好。</p>
-
-                        <h2>4. 问题分析</h2>
-                        <p>在筛选过程中发现，部分酶在反应后期出现活性下降现象，可能与底物抑制或产物反馈抑制有关。后续需要进一步优化反应条件。</p>
-
-                        <h2>5. 下一步计划</h2>
-                        <ul>
-                            <li>对 E02 和 E05 进行固定化处理，提高重复使用性</li>
-                            <li>优化反应温度和 pH 条件，提升转化率</li>
-                            <li>开展 100 mL 规模的放大实验</li>
-                        </ul>
+                        <p style="text-align:center;color:#94a3b8;padding:64px 0;">请从左侧文件树选择文档查看</p>
                     </div>
 
-                    <div class="doc-nav-footer">
-                        <a class="doc-nav-prev" href="#" onclick="docOpenFile('project','新橙皮苷/酶筛选','01_筛选方案.md'); return false;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                            01_筛选方案.md
-                        </a>
-                        <a class="doc-nav-next" href="#" onclick="docOpenFile('project','新橙皮苷/酶筛选','03_数据分析.md'); return false;">
-                            03_数据分析.md
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                        </a>
+                    <div class="doc-nav-footer" id="docNavFooter" style="display:none;">
+                        <!-- 由 JS 根据当前栏目、目录和真实相邻文件动态生成 -->
                     </div>
                 </div>
 
@@ -713,6 +377,15 @@
                         <button class="editor-tool" type="button" title="插入链接" onclick="insertEditorLink()">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
                         </button>
+                        <span class="editor-divider"></span>
+                        <button class="editor-tool editor-color-btn" type="button" title="黑色" onclick="setEditorFontColor('#1e293b')" style="color:#1e293b;font-weight:bold;">A</button>
+                        <button class="editor-tool editor-color-btn" type="button" title="灰色" onclick="setEditorFontColor('#64748b')" style="color:#64748b;font-weight:bold;">A</button>
+                        <button class="editor-tool editor-color-btn" type="button" title="红色" onclick="setEditorFontColor('#ef4444')" style="color:#ef4444;font-weight:bold;">A</button>
+                        <button class="editor-tool editor-color-btn" type="button" title="橙色" onclick="setEditorFontColor('#f97316')" style="color:#f97316;font-weight:bold;">A</button>
+                        <button class="editor-tool editor-color-btn" type="button" title="绿色" onclick="setEditorFontColor('#22c55e')" style="color:#22c55e;font-weight:bold;">A</button>
+                        <button class="editor-tool editor-color-btn" type="button" title="蓝色" onclick="setEditorFontColor('#3b82f6')" style="color:#3b82f6;font-weight:bold;">A</button>
+                        <button class="editor-tool editor-color-btn" type="button" title="紫色" onclick="setEditorFontColor('#a855f7')" style="color:#a855f7;font-weight:bold;">A</button>
+                        <button class="editor-tool" type="button" title="恢复默认颜色" onclick="setEditorFontColor('inherit')">↺</button>
                         <span class="editor-toolbar-spacer"></span>
                         <button class="editor-source-toggle" id="editorSourceToggle" type="button" onclick="toggleEditorSourceMode()">Markdown 源码</button>
                     </div>
@@ -733,53 +406,272 @@
 
             <!-- 右侧面板 -->
             <aside class="doc-aside" id="docAside">
-                <!-- 阅读模式：页面导航 -->
+                <!-- 阅读模式：页面导航（仅保留页面结构，快捷操作已移除，交给 AI 智能体） -->
                 <div class="doc-toc-panel" id="docTocPanel">
-                    <div class="doc-aside-title">页面导航</div>
-                    <div class="doc-toc-list" id="docTocList">
-                        <a class="doc-toc-item active" href="#h1">1. 项目背景</a>
-                        <a class="doc-toc-item" href="#h2">2. 实验设计</a>
-                        <a class="doc-toc-item" href="#h3">3. 数据结果</a>
-                        <a class="doc-toc-sub" href="#h31">3.1 转化率结果</a>
-                        <a class="doc-toc-sub" href="#h32">3.2 产物得率结果</a>
-                        <a class="doc-toc-sub" href="#h33">3.3 稳定性结果</a>
-                        <a class="doc-toc-item" href="#h4">4. 问题分析</a>
-                        <a class="doc-toc-item" href="#h5">5. 下一步计划</a>
+                    <div class="doc-toc-section top" id="tocSectionTop">
+                        <div class="doc-aside-title">页面结构</div>
+                        <div class="doc-toc-list" id="docTocList">
+                            <!-- 由 JS 动态生成 -->
+                        </div>
                     </div>
                 </div>
 
-                <!-- 编辑模式：辅助面板 -->
+                <!-- 编辑模式：辅助面板（仅保留页面结构） -->
                 <div class="doc-edit-aside" id="docEditAside" style="display:none;">
-                    <div class="doc-aside-tabs">
-                        <button class="doc-aside-tab active" onclick="switchDocAsideTab(this,'structure')">页面结构</button>
-                        <button class="doc-aside-tab" onclick="switchDocAsideTab(this,'ai')">AI 排版</button>
-                        <button class="doc-aside-tab" onclick="switchDocAsideTab(this,'info')">文件信息</button>
-                    </div>
-                    <div class="doc-aside-tab-content" id="asideStructure">
-                        <div class="doc-structure-tree">
-                            <div class="structure-item h1">筛选结果</div>
-                            <div class="structure-item h2">1. 项目背景</div>
-                            <div class="structure-item h2">2. 实验设计</div>
-                            <div class="structure-item h2">3. 数据结果</div>
-                            <div class="structure-item h3">3.1 转化率结果</div>
-                            <div class="structure-item h3">3.2 产物得率结果</div>
-                            <div class="structure-item h3">3.3 稳定性结果</div>
-                            <div class="structure-item h2">4. 问题分析</div>
-                            <div class="structure-item h2">5. 下一步计划</div>
+                    <div class="doc-toc-section top" id="editSectionTop">
+                        <div class="doc-aside-title">页面结构</div>
+                        <div class="doc-structure-tree" id="asideStructureTree">
+                            <!-- 由 JS 动态生成 -->
                         </div>
-                        <div class="doc-quick-actions">
-                            <div class="doc-quick-title">快速操作</div>
-                            <button class="doc-quick-btn">检查标题层级</button>
-                            <button class="doc-quick-btn">整理表格格式</button>
-                            <button class="doc-quick-btn">检查图片路径</button>
-                            <button class="doc-quick-btn">清理多余空行</button>
-                        </div>
-                        <div class="doc-ai-hint">提示：AI 排版不会修改实验数据和结论，请放心使用。</div>
                     </div>
                 </div>
             </aside>
         </div>
     </main>
+
+    <div class="modal-overlay" id="historyModal" style="display:none;">
+        <div class="modal-content history-modal-content">
+            <div class="modal-header">
+                <h3>历史版本</h3>
+                <button class="modal-close" type="button" onclick="closeDocumentHistory()">&times;</button>
+            </div>
+            <div class="modal-body history-modal-body">
+                <div class="history-version-list" id="historyVersionList"></div>
+                <pre class="history-preview" id="historyPreview">选择一个版本以预览内容</pre>
+            </div>
+            <div class="modal-footer">
+                <span class="modal-hint" id="historyHint">恢复前会自动保留当前版本。</span>
+                <button class="btn btn-secondary" type="button" onclick="closeDocumentHistory()">关闭</button>
+                <button class="btn btn-primary" id="historyRestoreButton" type="button" onclick="restoreSelectedHistory()" disabled>恢复所选版本</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 设置页面 -->
+    <main class="settings-page" id="settingsPage">
+        <div class="settings-layout">
+            <!-- 左侧：设置导航 -->
+            <aside class="settings-sidebar">
+                <div class="settings-nav">
+                    <div class="settings-nav-item active" data-section="models" onclick="switchSettingsSection('models')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                        <span>模型配置</span>
+                    </div>
+                    <div class="settings-nav-item" data-section="providers" onclick="switchSettingsSection('providers')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                        <span>供应商管理</span>
+                    </div>
+                    <div class="settings-nav-item" data-section="assignments" onclick="switchSettingsSection('assignments')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        <span>场景分配</span>
+                    </div>
+                    <div class="settings-nav-item" data-section="general" onclick="switchSettingsSection('general')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                        <span>通用设置</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- 右侧：设置内容 -->
+            <div class="settings-main">
+                <!-- 模型配置 -->
+                <div class="settings-section active" id="settingsModels">
+                    <div class="settings-header">
+                        <h2>模型配置</h2>
+                        <p>配置工作空间、模型厂商和不同用途的模型。</p>
+                    </div>
+                    <div class="settings-content">
+                        <!-- 简洁的配置卡片 -->
+                        <div class="config-card">
+                            <div class="config-card-header">
+                                <h3>模型厂商配置</h3>
+                                <p class="config-description">保存后将同时保存 API Key 和模型到本地数据库</p>
+                            </div>
+                            <div class="config-card-body">
+                                <div class="form-group">
+                                    <label class="form-label">1. 选择厂商</label>
+                                    <select id="providerSelect" class="form-select">
+                                        <option value="">请选择厂商</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">2. API 地址（可选）</label>
+                                    <input type="text" id="providerBaseUrl" class="form-input" placeholder="留空使用默认值">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">3. API Key（必填）</label>
+                                    <input type="password" id="providerApiKey" class="form-input" placeholder="请输入 API Key">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">4. 默认模型（必填）</label>
+                                    <div class="form-row">
+                                        <select id="providerDefaultModel" class="form-select" onchange="checkModelInput()">
+                                            <option value="">请选择模型</option>
+                                            <option value="__manual__">手动输入模型 ID</option>
+                                        </select>
+                                        <button class="btn btn-secondary btn-sm" onclick="refreshModelsList()">获取模型</button>
+                                    </div>
+                                    <!-- 手动输入模型 ID 的输入框（默认隐藏） -->
+                                    <input type="text" id="manualModelInput" class="form-input" placeholder="如：deepseek-v4-flash" style="display: none; margin-top: 8px;">
+                                </div>
+                                <div class="config-card-actions">
+                                    <button class="btn btn-primary" onclick="saveProviderConfig()">保存配置</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 已配置厂商列表 -->
+                        <div class="config-card">
+                            <div class="config-card-header">
+                                <h3>已配置厂商</h3>
+                            </div>
+                            <div class="config-card-body">
+                                <div class="provider-list" id="configuredProvidersList">
+                                    <!-- 动态加载 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 供应商管理 -->
+                <div class="settings-section" id="settingsProviders" style="display:none;">
+                    <div class="settings-header">
+                        <h2>供应商管理</h2>
+                        <p>配置 AI 供应商信息和 API 密钥。</p>
+                    </div>
+                    <div class="settings-content">
+                        <div class="providers-list" id="providersList">
+                            <!-- 动态加载 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 场景分配 -->
+                <div class="settings-section" id="settingsAssignments" style="display:none;">
+                    <div class="settings-header">
+                        <h2>场景分配</h2>
+                        <p>为不同使用场景分配默认模型。</p>
+                    </div>
+                    <div class="settings-content">
+                        <div class="assignments-list" id="assignmentsList">
+                            <!-- 动态加载 -->
+                        </div>
+                        <div class="config-card-actions" style="margin-top: 20px;">
+                            <button class="btn btn-primary" onclick="saveAllAssignments()">保存分配</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 通用设置 -->
+                <div class="settings-section" id="settingsGeneral" style="display:none;">
+                    <div class="settings-header">
+                        <h2>通用设置</h2>
+                        <p>配置系统通用选项。</p>
+                    </div>
+                    <div class="settings-content">
+                        <div class="setting-item">
+                            <div class="setting-label">自动保存间隔</div>
+                            <div class="setting-control">
+                                <input type="number" id="autoSaveInterval" class="form-input" value="30" min="10" max="120" style="width:80px;" onchange="saveAutoSaveInterval(this.value)">
+                                <span class="setting-unit">秒</span>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-label">默认编辑模式</div>
+                            <div class="setting-control">
+                                <select id="defaultEditMode" class="form-select">
+                                    <option value="read">阅读模式</option>
+                                    <option value="edit">编辑模式</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                远程更新源
+                                <div class="setting-description">填写可公网访问的 latest.json 地址，启动时自动检查新版本。</div>
+                            </div>
+                            <div class="setting-control" style="gap:8px;flex-wrap:wrap;">
+                                <input type="url" id="updateManifestUrl" class="form-input" placeholder="https://github.com/lixinpeng027-coder/DocWiki/releases/latest/download/latest.json" style="width:min(460px,60vw);">
+                                <button class="btn btn-secondary" type="button" onclick="saveUpdateManifestUrl()">保存</button>
+                                <button class="btn btn-primary" type="button" id="checkUpdateButton" onclick="checkForDocWikiUpdate(true)">检查更新</button>
+                                <span class="setting-unit" id="updateCheckStatus"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 帮助与关于 -->
+                    <div class="settings-header" style="margin-top:32px;">
+                        <h2>帮助与关于</h2>
+                        <p>版本信息、数据位置和使用说明。</p>
+                    </div>
+                    <div class="settings-content">
+                        <div class="setting-item">
+                            <div class="setting-label">软件版本</div>
+                            <div class="setting-control">
+                                <span class="setting-unit" id="helpVersion">DocWiki 1.2.1</span>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-label">本地服务地址</div>
+                            <div class="setting-control">
+                                <span class="setting-unit" id="helpServiceUrl">http://127.0.0.1:4173</span>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-label">数据目录</div>
+                            <div class="setting-control">
+                                <span class="setting-unit" id="helpDataPath" style="font-family:monospace;font-size:12px;word-break:break-all;">加载中...</span>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-label">使用说明</div>
+                            <div class="setting-control" style="flex-direction:column;align-items:flex-start;gap:4px;">
+                                <p style="font-size:13px;color:#64748b;line-height:1.6;margin:0;">
+                                    • 在左侧导航栏切换栏目（项目/文献/报告/SOP/软件/写作）<br>
+                                    • 在文件树中浏览和打开 Markdown 文档<br>
+                                    • 使用「编辑模式」编辑文档并保存，支持 Markdown 和所见即所得<br>
+                                    • 在「设置」中配置 AI 模型供应商和场景分配<br>
+                                    • 使用搜索框快速查找知识库中的文档<br>
+                                    • 点击右下角 AI 助手图标打开智能对话<br>
+                                    • 首页输入框可直接与 AI 对话，Agent 会自动检索知识库
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 进行中任务阶段编辑 -->
+    <div class="modal-overlay" id="taskProgressModal" style="display:none;">
+        <div class="modal-content compact-modal-content">
+            <div class="modal-header">
+                <h3>更新任务阶段</h3>
+                <button class="modal-close" type="button" onclick="closeTaskProgressEditor()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="taskProgressIndex">
+                <div class="form-group">
+                    <label for="taskCurrentStage">当前阶段</label>
+                    <input class="form-input" id="taskCurrentStage" placeholder="例如：需求确认">
+                </div>
+                <div class="form-group">
+                    <label for="taskNextStage">下一阶段</label>
+                    <input class="form-input" id="taskNextStage" placeholder="例如：开发实现">
+                </div>
+                <div class="form-group">
+                    <label for="taskPlannedDate">预计进行日期</label>
+                    <input type="date" class="form-input" id="taskPlannedDate">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" onclick="closeTaskProgressEditor()">取消</button>
+                <button class="btn btn-primary" type="button" onclick="saveTaskProgress()">保存</button>
+            </div>
+        </div>
+    </div>
 
     <!-- 新建文件弹窗 -->
     <div class="modal-overlay" id="newFileModal" style="display:none;">
@@ -794,12 +686,7 @@
                 <div class="form-group">
                     <label id="newFileLocationLabel">所属项目 / 放置位置</label>
                     <select id="newFileLocation" class="form-select">
-                        <option value="新橙皮苷/酶筛选">新橙皮苷 / 酶筛选</option>
-                        <option value="新橙皮苷/结构验证">新橙皮苷 / 结构验证</option>
-                        <option value="FR1 发酵/批次记录">FR1 发酵 / 批次记录</option>
-                        <option value="FR1 发酵/周报总结">FR1 发酵 / 周报总结</option>
-                        <option value="FN1 发酵/批次记录">FN1 发酵 / 批次记录</option>
-                        <option value="FN1 发酵/问题分析">FN1 发酵 / 问题分析</option>
+                        <!-- 由 JS 动态填充 real directories -->
                     </select>
                 </div>
                 <div class="form-group">
@@ -828,9 +715,7 @@
                 <div class="form-group">
                     <label id="newFolderProjectLabel">所属项目</label>
                     <select id="newFolderProject" class="form-select">
-                        <option value="新橙皮苷">新橙皮苷</option>
-                        <option value="FR1 发酵">FR1 发酵</option>
-                        <option value="FN1 发酵">FN1 发酵</option>
+                        <!-- 由 JS 动态填充 real projects -->
                     </select>
                 </div>
                 <div class="form-group">
@@ -844,6 +729,44 @@
             </div>
         </div>
     </div>
+
+    <!-- 文件复制/移动目标选择弹窗 -->
+    <div class="modal-overlay" id="fileTransferModal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="fileTransferModalTitle">选择目标位置</h3>
+                <button class="modal-close" type="button" onclick="closeFileTransferModal()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-hint" id="fileTransferModalHint">选择目标栏目和目录，然后点击确认。</p>
+                <div class="form-group">
+                    <label>目标栏目</label>
+                    <select id="fileTransferCategory" class="form-select" onchange="onFileTransferCategoryChange()">
+                        <option value="项目">项目</option>
+                        <option value="报告">报告</option>
+                        <option value="文献">文献</option>
+                        <option value="SOP">SOP</option>
+                        <option value="软件">软件</option>
+                        <option value="写作">写作</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>目标目录（留空=栏目根目录）</label>
+                    <select id="fileTransferDir" class="form-select">
+                        <option value="">（根目录）</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span class="modal-hint" id="fileTransferStatus"></span>
+                <button class="btn btn-secondary" type="button" onclick="closeFileTransferModal()">取消</button>
+                <button class="btn btn-primary" id="fileTransferConfirmBtn" type="button" onclick="confirmFileTransfer()">确认</button>
+            </div>
+        </div>
+    </div>
+
     <div class="tree-context-menu" id="treeContextMenu">
         <div class="tree-context-item" id="ctxRenameBtn" onclick="ctxRename()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
@@ -858,6 +781,15 @@
             新建文件夹
         </div>
         <div class="tree-context-divider"></div>
+        <div class="tree-context-item" onclick="ctxCopy()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            复制
+        </div>
+        <div class="tree-context-item" onclick="ctxMove()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 9 2 12 5 15"></polyline><polyline points="9 5 12 2 15 5"></polyline><polyline points="15 19 12 22 9 19"></polyline><polyline points="19 9 22 12 19 15"></polyline><line x1="2" y1="12" x2="22" y2="12"></line><line x1="12" y1="2" x2="12" y2="22"></line></svg>
+            移动
+        </div>
+        <div class="tree-context-divider"></div>
         <div class="tree-context-item danger" onclick="ctxDelete()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
             删除
@@ -867,22 +799,84 @@
     <script src="node_modules/dompurify/dist/purify.min.js"></script>
     <script src="node_modules/turndown/dist/turndown.js"></script>
     <script src="node_modules/turndown-plugin-gfm/dist/turndown-plugin-gfm.js"></script>
-    <script src="js/app.js?v=6"></script>
+    <script src="js/app.js?v=12"></script>
+    <script src="js/settings.js?v=2"></script>
+    <script type="module" src="js/chat.js?v=3"></script>
+    <script type="module" src="js/selection.js?v=3"></script>
+    <script type="module" src="js/safe-write.js?v=3"></script>
     <script>
-        // 每次加载/刷新页面时，强制显示首页并滚动到顶部
-        window.addEventListener('beforeunload', function() {
-            window.scrollTo(0, 0);
-            document.body.scrollTop = 0;
-            document.documentElement.scrollTop = 0;
-        });
-        document.addEventListener('DOMContentLoaded', function() {
-            window.scrollTo(0, 0);
-            document.body.scrollTop = 0;
-            document.documentElement.scrollTop = 0;
-            // 确保首页显示
-            switchTab('home');
-        });
+        // 注意：页面初始化逻辑已移至 js/app.js 的 DOMContentLoaded 事件中
     </script>
+    <!-- AI 聊天面板 -->
+    <div class="chat-panel" id="chatPanel" style="display:none;">
+        <div class="chat-panel-header">
+            <div class="chat-panel-info">
+                <span class="chat-panel-title" id="chatPanelTitle">新对话</span>
+                <span class="chat-panel-scene" id="chatPanelScene">default</span>
+            </div>
+            <div class="chat-panel-actions">
+                <button class="chat-action-btn" onclick="createNewConversation()" title="新建对话" aria-label="新建对话">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </button>
+                <button class="chat-action-btn" id="chatSizeToggle" onclick="toggleChatSize()" title="放大" aria-label="放大对话框">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <polyline points="9 21 3 21 3 15"></polyline>
+                        <line x1="21" y1="3" x2="14" y2="10"></line>
+                        <line x1="3" y1="21" x2="10" y2="14"></line>
+                    </svg>
+                </button>
+                <button class="chat-action-btn" onclick="deleteCurrentConversation()" title="删除对话">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                </button>
+                <button class="chat-action-btn" onclick="closeChatPanel()" title="关闭">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 消息列表 -->
+        <div class="chat-messages" id="chatMessages">
+            <!-- 动态加载消息 -->
+        </div>
+        
+        <!-- 输入区域 -->
+        <div class="chat-input-area">
+            <div class="chat-model-status" title="模型由设置中的场景分配自动选择，调用失败时会自动切换备用模型">
+                <span class="chat-model-status-label">当前模型</span>
+                <span class="chat-model-status-value" id="chatCurrentModel">正在检测...</span>
+            </div>
+            <div class="chat-input-container">
+                <textarea id="chatInput" placeholder="输入消息... (Shift+Enter 换行, Enter 发送)" rows="1" onkeydown="handleChatKeydown(event)"></textarea>
+                <button class="chat-send-btn" onclick="sendChatMessage()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 选区快捷操作面板已移除 — DocWiki 1.2.0 交由 AI 智能体处理 -->
+    
+    <!-- AI 助手（悬浮对话入口） -->
+    <div class="ai-assistant" id="aiAssistant">
+        <div class="ai-avatar" id="aiAvatar">
+            <img src="assets/images/agent.png" alt="AI 助手" class="ai-char-img" style="width:72px;height:72px;border-radius:50%;object-fit:cover;">
+            <span class="ai-float-badge" id="aiFloatBadge" style="display:none;"></span>
+        </div>
+    </div>
+    
     <datalist id="category-list">
         <option value="项目">
         <option value="报告">
@@ -893,12 +887,59 @@
         <option value="其他">
     </datalist>
     <datalist id="project-list">
-        <option value="高效酶改造项目">
-        <option value="发酵工艺优化项目">
-        <option value="实验流程规范化">
-        <option value="实验室安全">
-        <option value="数据分析平台">
-        <option value="底物特异性研究">
+        <!-- 由 JS 运行时根据 real data 动态填充 -->
     </datalist>
+
+<script>
+// AI 助手拖拽功能
+document.addEventListener('DOMContentLoaded', function() {
+    const assistant = document.getElementById('aiAssistant');
+    if (!assistant) return;
+    
+    let isDragging = false;
+    let dragStartX, dragStartY, startLeft, startRight, startBottom;
+    
+    assistant.addEventListener('mousedown', function(e) {
+        // 只在左键点击时启动拖拽
+        if (e.button !== 0) return;
+        
+        const rect = assistant.getBoundingClientRect();
+        isDragging = false;  // 先不标记为拖拽
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        startLeft = rect.left;
+        startRight = window.innerWidth - rect.right;
+        startBottom = window.innerHeight - rect.bottom;
+        
+        const onMove = function(ev) {
+            const dx = ev.clientX - dragStartX;
+            const dy = ev.clientY - dragStartY;
+            if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+                isDragging = true;
+            }
+            if (isDragging) {
+                assistant.style.right = (startRight - dx) + 'px';
+                assistant.style.bottom = (startBottom - dy) + 'px';
+                assistant.style.left = 'auto';
+                assistant.style.top = 'auto';
+            }
+        };
+        
+        const onUp = function() {
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onUp);
+            // 如果不是拖拽，触发点击切换
+            if (!isDragging) {
+                toggleChatPanel();
+            }
+            isDragging = false;
+        };
+        
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+    });
+});
+
+</script>
 </body>
 </html>

@@ -1,14 +1,95 @@
 {
-  "name": "webwiki",
-  "private": true,
+  "name": "docwiki-desktop",
+  "version": "1.2.1",
+  "description": "DocWiki 个人研发知识库 - 桌面版",
   "type": "module",
+  "main": "electron/main.js",
   "scripts": {
-    "start": "node server.mjs"
+    "start": "node server.mjs",
+    "dev": "node server.mjs",
+    "electron": "electron .",
+    "electron-dev": "electron . --dev",
+    "desktop": "electron .",
+    "mcp": "node mcp/server.mjs",
+    "test": "node tests/update-manager.test.cjs && node tests/api.test.mjs && node tests/frontend.test.mjs && node tests/model-routing.test.mjs && node tests/e2e.test.mjs",
+    "build": "electron-builder"
   },
+  "author": "DocWiki",
+  "license": "MIT",
   "dependencies": {
     "dompurify": "^3.4.11",
     "marked": "^18.0.5",
+    "sql.js": "^1.11.0",
     "turndown": "^7.2.4",
-    "turndown-plugin-gfm": "^1.0.2"
+    "turndown-plugin-gfm": "^1.0.2",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.0",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8",
+    "sharp": "^0.35.2"
+  },
+  "build": {
+    "appId": "com.docwiki.desktop",
+    "productName": "DocWiki",
+    "asar": false,
+    "directories": {
+      "output": "F:/trae_workspace"
+    },
+    "files": [
+      "electron/**/*",
+      "mcp/**/*",
+      "server.mjs",
+      "index.html",
+      "css/**/*",
+      "js/**/*",
+      "db/**/*",
+      "core/**/*",
+      "server/**/*",
+      "data/**/*",
+      "assets/**/*",
+      "node_modules/marked/**/*",
+      "node_modules/dompurify/**/*",
+      "node_modules/turndown/**/*",
+      "node_modules/turndown-plugin-gfm/**/*",
+      "node_modules/sql.js/**/*",
+      "node_modules/uuid/**/*"
+    ],
+    "asarUnpack": [
+      "package.json",
+      "data/**/*",
+      "index.html",
+      "css/**/*",
+      "js/**/*",
+      "assets/**/*",
+      "server.mjs",
+      "server/**/*",
+      "core/**/*",
+      "db/**/*",
+      "mcp/**/*",
+      "node_modules/sql.js/**/*",
+      "node_modules/uuid/**/*",
+      "node_modules/marked/**/*",
+      "node_modules/dompurify/**/*",
+      "node_modules/turndown/**/*",
+      "node_modules/turndown-plugin-gfm/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "artifactName": "DocWiki-Setup-${version}.exe",
+      "icon": "assets/icon.ico",
+      "sign": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "language": "2052"
+    },
+    "electronLanguages": [
+      "zh-CN"
+    ]
   }
 }

@@ -1,2 +1,22 @@
 node_modules/
 .reasonix/current-sidebar.png
+.webwiki/
+.webwiki-test/
+.webwiki-test-routing/
+.e2e-test-data/
+.e2e-test-state/
+DELIVERY.md
+dist/
+
+# 测试与临时文件
+proto_v1.html
+debug.log
+RXQA_*.png
+RXQA_ui_test.mjs
+test-ui.js
+
+# 开发文档（不参与打包）
+docs/
+
+# IDE 配置
+.reasonix/
