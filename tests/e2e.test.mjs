@@ -333,6 +333,8 @@ async function runE2ETests() {
             })
         });
     });
+    await page.waitForSelector('.ai-textarea', { state: 'visible', timeout: 8000 });
+    await page.locator('.ai-textarea').scrollIntoViewIfNeeded();
     await page.locator('.ai-textarea').fill('明天完成 DocWiki 安装包回归测试，优先级高。');
     await page.locator('#taskParseButton').click();
     await page.waitForTimeout(300);
@@ -600,17 +602,25 @@ async function runE2ETests() {
         });
         assert(saveBtnDisabled === false, '保存按钮可用（未保存状态）');
 
-        // 选中文字并点击字体颜色预设按钮（红色）
+        // 选中文字并应用字体颜色（通过紧凑色板下拉）
         // 先全选 #richEditor 内容
         await richEditor.click();
         await page.keyboard.press('Control+a');
         await page.waitForTimeout(200);
 
-        // 点击红色颜色按钮（第3个 editor-color-btn）
-        const colorBtns = await page.$$('.editor-color-btn');
-        assert(colorBtns.length >= 7, `颜色按钮数量 >= 7 (实际=${colorBtns.length})`);
-        if (colorBtns.length >= 3) {
-            await colorBtns[2].click(); // 红色
+        // 打开紧凑色板下拉
+        const colorTrigger = await page.$('.editor-color-trigger');
+        assert(colorTrigger !== null, '颜色下拉触发器存在');
+        if (colorTrigger) {
+            await colorTrigger.click();
+            await page.waitForTimeout(300);
+        }
+
+        // 点击红色 color-chip（第3个）
+        const colorChips = await page.$$('#editorColorPalette .color-chip');
+        assert(colorChips.length >= 7, `颜色色板按钮数量 >= 7 (实际=${colorChips.length})`);
+        if (colorChips.length >= 3) {
+            await colorChips[2].click(); // 红色 (#ef4444)
             await page.waitForTimeout(400);
         }
 

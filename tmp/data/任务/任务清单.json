@@ -1,0 +1,75 @@
+{
+  "tasks": [
+    {
+      "name": "酶活性筛选数据分析",
+      "priority": "高",
+      "category": "项目",
+      "project": "高效酶改造项目",
+      "sub": "酶筛选",
+      "description": "分析酶活性筛选实验数据，整理成报告",
+      "status": "进行中",
+      "deadline": "今天 18:00"
+    },
+    {
+      "name": "发酵实验周报撰写",
+      "priority": "中",
+      "category": "报告",
+      "project": "发酵工艺优化项目",
+      "sub": "周报汇总",
+      "description": "对比本批次和上一批次OD、产量、异常点，整理成汇报文字",
+      "status": "待开始",
+      "deadline": "本周五"
+    },
+    {
+      "name": "SOP 文档修订",
+      "priority": "高",
+      "category": "SOP",
+      "project": "实验室安全",
+      "sub": "",
+      "description": "修订蛋白纯化SOP文档，更新操作步骤",
+      "status": "进行中",
+      "deadline": "本周五"
+    },
+    {
+      "name": "数据分析脚本优化",
+      "priority": "中",
+      "category": "软件",
+      "project": "数据分析平台",
+      "sub": "",
+      "description": "优化Python数据分析脚本，提高运行效率",
+      "status": "待开始",
+      "deadline": "本周日"
+    },
+    {
+      "name": "文献阅读与摘要整理",
+      "priority": "低",
+      "category": "文献",
+      "project": "酶学综述",
+      "sub": "底物特异性研究",
+      "description": "阅读底物特异性相关文献，整理摘要笔记",
+      "status": "待开始",
+      "deadline": "下周一"
+    },
+    {
+      "name": "UXTEST_20260620_TASK",
+      "priority": "中",
+      "category": "项目",
+      "project": "",
+      "sub": "",
+      "description": "通过用户界面创建并验证任务持久化，优先级中。",
+      "status": "待开始",
+      "deadline": "2026/06/30"
+    },
+    {
+      "category": "项目",
+      "project": "RXQA_20260620_TEST_PROJECT",
+      "name": "RXQA_20260620_任务验证",
+      "description": "RXQA 测试任务：验证任务创建、持久化与多数据源一致性。包含所有字段：category/project/sub/deadline/priority/status。",
+      "priority": "高",
+      "sub": "RXQA_子任务",
+      "status": "已完成",
+      "deadline": "2026年12月31日 星期五"
+    }
+  ],
+  "completedTasks": []
+}

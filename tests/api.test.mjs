@@ -1,7 +1,8 @@
-// DocWiki 1.2.0 后端 API 自动化测试
+// DocWiki 1.2.2 后端 API 自动化测试（Markdown 任务存储）
 // 用法: node tests/api.test.mjs
 import http from 'node:http';
 import { spawn } from 'node:child_process';
+import { mkdirSync, rmSync, writeFileSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -9,6 +10,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
 const PORT = 14173;
 const BASE = `http://127.0.0.1:${PORT}`;
+const TEST_DATA_DIR = path.join(rootDir, '.api-test-data-temp');
+const TEST_STATE_DIR = path.join(rootDir, '.api-test-state-temp');
 
 let serverProcess = null;
 let passed = 0;
@@ -41,14 +44,36 @@ function fetchJSON(urlPath, options = {}) {
     });
 }
 
+function setupTestData() {
+    rmSync(TEST_DATA_DIR, { recursive: true, force: true });
+    rmSync(TEST_STATE_DIR, { recursive: true, force: true });
+    const cats = ['项目', '报告', '文献', 'SOP', '软件', '写作', '任务'];
+    cats.forEach(c => mkdirSync(path.join(TEST_DATA_DIR, c), { recursive: true }));
+    // 创建任务子目录
+    mkdirSync(path.join(TEST_DATA_DIR, '任务', '待办'), { recursive: true });
+    mkdirSync(path.join(TEST_DATA_DIR, '任务', '已完成'), { recursive: true });
+    // 创建旧格式任务 JSON（用于迁移测试）
+    const legacyTasks = {
+        tasks: [
+            { name: '旧任务-待办', priority: '高', level: '项目', project: '测试', status: '待开始', deadline: '2026-12-31', detail: '旧格式待办任务', id: 'old-task-001' },
+            { name: '旧任务-进行中', priority: '中', level: '报告', project: '测试', status: '进行中', deadline: '2026-06-30', detail: '旧格式进行中任务', currentStage: '开发', nextStage: '测试', id: 'old-task-002' }
+        ],
+        completedTasks: [
+            { name: '旧任务-已完成', priority: '低', level: 'SOP', project: '测试', status: '已完成', deadline: '2026-01-01', completedAt: '2026-01-01', detail: '旧格式已完成任务', id: 'old-task-003' }
+        ]
+    };
+    writeFileSync(path.join(TEST_DATA_DIR, '任务', '任务清单.json'), JSON.stringify(legacyTasks, null, 2), 'utf8');
+    console.log(`  测试数据目录: ${TEST_DATA_DIR}`);
+}
+
 async function runTests() {
-    console.log('\n=== DocWiki 1.2.0 API 测试 ===\n');
+    console.log('\n=== DocWiki 1.2.2 API 测试（Markdown 任务存储） ===\n');
 
     // 1. 健康检查
     console.log('1. Health Check');
     const health = await fetchJSON('/api/health');
     assert(health.status === 200 && health.data.status === 'ok', 'GET /api/health → 200 ok');
-    assert(health.data.version === '1.2.1', '版本号 = 1.2.1');
+    assert(health.data.version === '1.2.2', '版本号 = 1.2.2');
 
     console.log('\n2. 文件树 API');
     const tree = await fetchJSON('/api/tree');
@@ -67,43 +92,170 @@ async function runTests() {
     const emptySearch = await fetchJSON('/api/search?q=');
     assert(emptySearch.status === 200 && emptySearch.data.results.length === 0, '空搜索返回空数组');
 
-    console.log('\n4. 任务 API');
-    const tasks = await fetchJSON('/api/tasks');
-    assert(tasks.status === 200, 'GET /api/tasks → 200');
-    assert(Array.isArray(tasks.data.tasks), 'tasks 是数组');
-    assert(Array.isArray(tasks.data.completedTasks), 'completedTasks 是数组');
-    // 保存并验证
-    const testTask = { name: '测试任务-自动化', priority: '高', level: '项目', project: '测试项目', status: '待开始', deadline: '2026/12/31', detail: '自动化测试创建', sub: '', currentStage: '需求分析', nextStage: '开发实现', plannedDate: '2026-07-01' };
-    const saveResult = await fetchJSON('/api/tasks', {
+    console.log('\n4. 任务 API（Markdown 存储）');
+
+    // 4a. 迁移旧 JSON → Markdown
+    console.log('  4a. 迁移旧任务 JSON');
+    const migrateResult = await fetchJSON('/api/tasks', {
         method: 'POST',
-        body: { tasks: [testTask], completedTasks: [] }
+        body: { action: 'migrate' }
     });
-    assert(saveResult.status === 200 && saveResult.data.success, 'POST /api/tasks → 保存成功');
-    // 验证持久化
-    const reloaded = await fetchJSON('/api/tasks');
-    assert(reloaded.data.tasks.length >= 1, '保存后重新加载数据存在');
-    const saved = reloaded.data.tasks.find(t => t.name === '测试任务-自动化');
-    assert(saved && saved.priority === '高', '优先级正确保存为"高"');
-    assert(saved && saved.status === '待开始', '状态正确保存');
-    assert(saved && saved.currentStage === '需求分析', 'currentStage 正确保存');
-    assert(saved && saved.nextStage === '开发实现', 'nextStage 正确保存');
-    assert(saved && saved.plannedDate === '2026-07-01', 'plannedDate 正确保存');
-    assert(saved && !('progressPercentage' in saved), '无 progressPercentage 字段');
-    // 清理
-    await fetchJSON('/api/tasks', {
+    assert(migrateResult.status === 200, 'POST /api/tasks migrate → 200');
+    assert(migrateResult.data.success === true, '迁移返回 success');
+    assert(migrateResult.data.migrated >= 3, `迁移任务数 >= 3 (实际=${migrateResult.data.migrated})`);
+
+    // 迁移后数据应从 Markdown 目录读取
+    const afterMigrate = await fetchJSON('/api/tasks');
+    assert(afterMigrate.status === 200, '迁移后 GET /api/tasks → 200');
+    assert(afterMigrate.data.tasks.length >= 2, `迁移后待办任务 >= 2 (实际=${afterMigrate.data.tasks.length})`);
+    assert(afterMigrate.data.completedTasks.length >= 1, `迁移后已完成任务 >= 1 (实际=${afterMigrate.data.completedTasks.length})`);
+
+    // 迁移幂等：再次迁移不重复
+    const migrateAgain = await fetchJSON('/api/tasks', {
         method: 'POST',
-        body: { tasks: [], completedTasks: [] }
+        body: { action: 'migrate' }
     });
+    assert(migrateAgain.status === 200, '二次迁移 → 200（幂等）');
+    assert(migrateAgain.data.migrated === 0, `二次迁移不重复 (实际 migrated=${migrateAgain.data.migrated})`);
+
+    // 4b. CRUD：创建任务
+    console.log('  4b. 任务 CRUD');
+    const createResult = await fetchJSON('/api/tasks', {
+        method: 'POST',
+        body: {
+            action: 'create',
+            task: { name: 'CRUD测试任务', priority: '高', level: '项目', project: '测试项目', status: '待开始', deadline: '2026/12/31', detail: 'CRUD 测试详情', sub: '', currentStage: '需求分析', nextStage: '开发实现', plannedDate: '2026-07-01' }
+        }
+    });
+    assert(createResult.status === 201, 'POST create → 201');
+    assert(createResult.data.task && createResult.data.task.name === 'CRUD测试任务', '创建任务名称正确');
+    assert(createResult.data.task.id, '创建任务有 ID');
+
+    const createdId = createResult.data.task.id;
+
+    // 空名称拒绝
+    const emptyName = await fetchJSON('/api/tasks', {
+        method: 'POST',
+        body: { action: 'create', task: { name: '' } }
+    });
+    assert(emptyName.status === 400, '空名称创建 → 400');
+
+    // 同名任务拒绝
+    const dupName = await fetchJSON('/api/tasks', {
+        method: 'POST',
+        body: { action: 'create', task: { name: 'CRUD测试任务', priority: '中' } }
+    });
+    assert(dupName.status === 409, '同名任务创建 → 409');
+
+    // 读取验证
+    const getAfterCreate = await fetchJSON('/api/tasks');
+    const created = getAfterCreate.data.tasks.find(t => t.name === 'CRUD测试任务');
+    assert(created && created.priority === '高', '创建后 GET 读取优先级正确');
+    assert(created && created.currentStage === '需求分析', '创建后 currentStage 正确');
+    assert(created && !('progressPercentage' in created), '无 progressPercentage 字段');
+
+    // 4c. 更新任务
+    console.log('  4c. 更新任务');
+    const updateResult = await fetchJSON('/api/tasks', {
+        method: 'POST',
+        body: {
+            action: 'update',
+            oldStatus: '待开始',
+            task: { id: createdId, name: 'CRUD测试任务-已更新', priority: '中', level: '报告', project: '测试项目2', status: '待开始', detail: '更新后的详情', currentStage: '编码中', nextStage: '代码审查', plannedDate: '2026-07-15' }
+        }
+    });
+    assert(updateResult.status === 200, 'POST update → 200');
+    assert(updateResult.data.task.name === 'CRUD测试任务-已更新', '更新后名称正确');
+    assert(updateResult.data.task.priority === '中', '更新后优先级正确');
+
+    // 更新不存在的任务
+    const updateMissing = await fetchJSON('/api/tasks', {
+        method: 'POST',
+        body: { action: 'update', task: { id: 'nonexistent-999', name: '不存在', status: '待开始' } }
+    });
+    assert(updateMissing.status === 404, '更新不存在的任务 → 404');
+
+    // 4d. 完成 + 恢复
+    console.log('  4d. 完成与恢复');
+    const completeResult = await fetchJSON('/api/tasks', {
+        method: 'POST',
+        body: { action: 'complete', id: createdId }
+    });
+    assert(completeResult.status === 200, 'POST complete → 200');
+    assert(completeResult.data.task.status === '已完成', '完成后状态为已完成');
+
+    // 验证任务从待办移到已完成
+    const afterComplete = await fetchJSON('/api/tasks');
+    const stillInTodo = afterComplete.data.tasks.find(t => t.name === 'CRUD测试任务-已更新');
+    assert(!stillInTodo, '完成后不在待办列表');
+    const inDone = afterComplete.data.completedTasks.find(t => t.name === 'CRUD测试任务-已更新');
+    assert(inDone && inDone.status === '已完成', '完成后在已完成列表');
+
+    // 恢复
+    const restoreResult = await fetchJSON('/api/tasks', {
+        method: 'POST',
+        body: { action: 'restore', id: createdId }
+    });
+    assert(restoreResult.status === 200, 'POST restore → 200');
+    assert(restoreResult.data.task.status === '待开始', '恢复后状态为待开始');
+
+    // 4e. 删除
+    console.log('  4e. 删除任务');
+    const deleteResult = await fetchJSON('/api/tasks', {
+        method: 'POST',
+        body: { action: 'delete', id: createdId }
+    });
+    assert(deleteResult.status === 200, 'POST delete → 200');
+
+    const afterDelete = await fetchJSON('/api/tasks');
+    const deleted = afterDelete.data.tasks.find(t => t.id === createdId);
+    assert(!deleted, '删除后任务不存在');
+
+    // 删除不存在的任务
+    const deleteMissing = await fetchJSON('/api/tasks', {
+        method: 'POST',
+        body: { action: 'delete', id: 'nonexistent-999' }
+    });
+    assert(deleteMissing.status === 404, '删除不存在的任务 → 404');
+
+    // 4f. 全量同步
+    console.log('  4f. 全量 sync');
+    const syncTasks = [
+        { name: 'sync任务1', priority: '高', level: '项目', status: '待开始', detail: 'sync1' },
+        { name: 'sync任务2', priority: '中', level: '报告', status: '进行中', detail: 'sync2' }
+    ];
+    const syncCompleted = [
+        { name: 'sync已完成', priority: '低', level: 'SOP', status: '已完成', detail: 'sync3' }
+    ];
+    const syncResult = await fetchJSON('/api/tasks', {
+        method: 'POST',
+        body: { action: 'sync', tasks: syncTasks, completedTasks: syncCompleted }
+    });
+    assert(syncResult.status === 200 && syncResult.data.success, 'sync → 200 success');
+    assert(syncResult.data.count === 3, `sync 写入 3 条 (实际=${syncResult.data.count})`);
+
+    // 验证 sync 覆盖
+    const afterSync = await fetchJSON('/api/tasks');
+    assert(afterSync.data.tasks.length === 2, `sync 后待办 = 2 (实际=${afterSync.data.tasks.length})`);
+    assert(afterSync.data.completedTasks.length === 1, `sync 后已完成 = 1 (实际=${afterSync.data.completedTasks.length})`);
+
+    // 4g. 非法 action
+    console.log('  4g. 错误处理');
+    const badAction = await fetchJSON('/api/tasks', {
+        method: 'POST',
+        body: { action: 'invalid_action' }
+    });
+    assert(badAction.status === 400, '未知 action → 400');
 
     console.log('\n5. 文件 CRUD');
     const testPath = '测试/自动化测试文件.md';
     // 创建
-    const created = await fetchJSON('/api/file', {
+    const fileCreated = await fetchJSON('/api/file', {
         method: 'POST',
         body: { path: testPath, content: '# 自动化测试\n\n测试内容' }
     });
-    assert(created.status === 201, 'POST /api/file → 201 创建文件');
-    assert(created.data.path === testPath, '路径正确');
+    assert(fileCreated.status === 201, 'POST /api/file → 201 创建文件');
+    assert(fileCreated.data.path === testPath, '路径正确');
 
     // 读取
     const read = await fetchJSON(`/api/file?path=${encodeURIComponent(testPath)}`);
@@ -276,8 +428,10 @@ async function startServer() {
             env: {
                 ...process.env,
                 PORT: String(PORT),
-                DOCWIKI_DATA_DIR: path.join(rootDir, 'data'),
-                DOCWIKI_STATE_DIR: path.join(rootDir, '.webwiki-test'),
+                DOCWIKI_DATA_DIR: TEST_DATA_DIR,
+                DOCWIKI_STATE_DIR: TEST_STATE_DIR,
+                WEBWIKI_DATA_DIR: TEST_DATA_DIR,
+                WEBWIKI_STATE_DIR: TEST_STATE_DIR,
             },
             stdio: ['ignore', 'pipe', 'pipe']
         });
@@ -285,14 +439,14 @@ async function startServer() {
         let started = false;
         const timeout = setTimeout(() => {
             if (!started) reject(new Error('Server start timeout'));
-        }, 10000);
+        }, 15000);
 
         serverProcess.stdout.on('data', chunk => {
             const msg = chunk.toString();
             if (msg.includes('已启动')) {
                 started = true;
                 clearTimeout(timeout);
-                setTimeout(resolve, 500); // 等一会确保就绪
+                setTimeout(resolve, 800);
             }
         });
         serverProcess.stderr.on('data', chunk => console.error('[Server]', chunk.toString().trim()));
@@ -307,8 +461,14 @@ function stopServer() {
     }
 }
 
+function cleanup() {
+    rmSync(TEST_DATA_DIR, { recursive: true, force: true });
+    rmSync(TEST_STATE_DIR, { recursive: true, force: true });
+}
+
 async function main() {
     try {
+        setupTestData();
         await startServer();
         await runTests();
     } catch (err) {
@@ -317,6 +477,9 @@ async function main() {
         console.log(`\n=== 测试结果: ${passed} 通过, ${failed} 失败 ===\n`);
     } finally {
         stopServer();
+        // 短暂等待确保进程退出
+        await new Promise(r => setTimeout(r, 500));
+        cleanup();
         if (failed > 0) process.exit(1);
     }
 }
