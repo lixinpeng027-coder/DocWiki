@@ -305,7 +305,8 @@ function executeNavigation(page, file) {
 function formatMessageContent(content) {
     if (!content) return '';
     if (typeof marked !== 'undefined') {
-        return marked.parse(content);
+        const raw = marked.parse(content);
+        return typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(raw) : raw;
     }
     return escapeHtml(content).replace(/\n/g, '<br>');
 }
