@@ -319,9 +319,10 @@ function filterModelsByProvider() {
 }
 
 // 显示 API 密钥配置弹窗
-function showApiKeyModal(providerId, providerName) {
-    const existingKey = prompt(`请输入 ${providerName} 的 API 密钥：\n（输入后将加密存储）`);
-    
+async function showApiKeyModal(providerId, providerName) {
+    const existingKey = await showPrompt('请输入 ' + providerName + ' 的 API 密钥：', 'API 密钥', '', true);
+    if (!existingKey) return;
+
     if (existingKey && existingKey.trim()) {
         storeApiKey(providerId, existingKey.trim());
     }
@@ -369,16 +370,16 @@ async function testProviderKey(providerId) {
 }
 
 // 显示添加模型弹窗
-function showAddModelModal() {
-    const providerId = prompt('请输入供应商 ID（如 prov_deepseek）：');
+async function showAddModelModal() {
+    const providerId = await showPrompt('请输入供应商 ID（如 prov_deepseek）：', '添加模型');
     if (!providerId) return;
-    
-    const modelId = prompt('请输入模型 ID（如 deepseek-chat）：');
+
+    const modelId = await showPrompt('请输入模型 ID（如 deepseek-chat）：', '添加模型');
     if (!modelId) return;
-    
-    const modelName = prompt('请输入模型显示名称（如 DeepSeek Chat）：');
+
+    const modelName = await showPrompt('请输入模型显示名称（如 DeepSeek Chat）：', '添加模型');
     if (!modelName) return;
-    
+
     addModel(providerId, modelId, modelName);
 }
 
@@ -436,7 +437,7 @@ async function testModel(modelId) {
 
 // 删除模型
 async function deleteModel(modelId) {
-    if (!confirm('确定要删除这个模型吗？')) return;
+    if (!await showConfirm('确定要删除这个模型吗？')) return;
     
     try {
         const response = await fetch(`/api/agent/models/${modelId}`, {

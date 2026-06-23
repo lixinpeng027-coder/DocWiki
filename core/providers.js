@@ -1,6 +1,7 @@
 // 供应商核心业务逻辑
 import { queryAll, queryOne, execute } from '../db/index.js';
 import { v4 as uuidv4 } from 'uuid';
+import { hasApiKey } from './keys.js';
 
 // 预置供应商类型
 export const PROVIDER_TYPES = {
@@ -68,21 +69,13 @@ export function deleteProvider(id) {
     return { success: true };
 }
 
-// 测试供应商连接
-export async function testProvider(id) {
-    const provider = getProvider(id);
-    if (!provider) {
-        return { success: false, error: 'PROVIDER_NOT_FOUND' };
-    }
-    
-    // 获取密钥
-    const keyRecord = queryOne('SELECT key_data FROM api_keys WHERE provider_id = ?', [id]);
-    if (!keyRecord) {
-        return { success: false, error: 'API_KEY_NOT_CONFIGURED' };
-    }
-    
-    // TODO: 实现实际的连接测试
-    return { success: true, message: '连接测试功能待实现' };
+// 测试供应商连接（配置完整性验证）
+export function testProviderConnection(providerId) {
+    const provider = getProvider(providerId);
+    if (!provider) return { success: false, error: '供应商不存在' };
+    if (!hasApiKey(providerId)) return { success: false, error: '未配置 API 密钥，请在设置中保存密钥后再测试' };
+    // 连接测试通过 adapter 层实际调用 API 验证，此处验证配置完整性
+    return { success: true, message: '配置完整，可以进行 API 调用测试' };
 }
 
 export default {
@@ -92,5 +85,5 @@ export default {
     createProvider,
     updateProvider,
     deleteProvider,
-    testProvider
+    testProviderConnection
 };

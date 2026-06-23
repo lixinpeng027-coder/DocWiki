@@ -134,8 +134,23 @@ router.delete('/models/:id', (params, body) => {
 
 // POST /api/agent/models/:id/test-capability - 测试模型能力
 router.post('/models/:id/test-capability', async (params, body) => {
-    // TODO: 实现能力测试
-    return { success: true, message: '能力测试功能待实现' };
+    const model = models.getModel(params.id);
+    if (!model) throw { status: 404, code: 'MODEL_NOT_FOUND' };
+    try {
+        const result = await adapter.chatWithModel(params.id, {
+            messages: [{ role: 'user', content: 'Hello, this is a capability test. Reply with just "ok".' }],
+            temperature: 0.1,
+            maxTokens: 50
+        });
+        return {
+            success: true,
+            message: '模型可用',
+            model: model.name,
+            response: result.content?.slice(0, 100)
+        };
+    } catch (err) {
+        return { success: false, error: '模型调用失败: ' + err.message };
+    }
 });
 
 // ========== 场景分配路由 ==========

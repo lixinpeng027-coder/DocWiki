@@ -242,7 +242,7 @@ async function handleNavConfirmYes(page, file) {
     const saved = await saveAllChanges();
     if (!saved) {
         // 保存失败，询问用户是否继续
-        const forceNavigation = confirm('保存未成功的修改，仍然继续跳转吗？');
+        const forceNavigation = await showConfirm('保存未成功的修改，仍然继续跳转吗？');
         if (!forceNavigation) return;
     }
 
@@ -482,7 +482,7 @@ async function updateConversationTitle(id, title) {
 
 // 删除对话
 async function deleteConversation(id) {
-    if (!confirm('确定要删除这个对话吗？')) return;
+    if (!await showConfirm('确定要删除这个对话吗？')) return;
 
     try {
         await fetch(`/api/agent/conversations/${id}`, { method: 'DELETE' });
@@ -503,11 +503,11 @@ async function deleteConversation(id) {
 // 删除当前对话
 async function deleteCurrentConversation() {
     if (!currentConversation) {
-        alert('空白对话无需删除，直接开始提问即可。');
+        showToast('空白对话无需删除，直接开始提问即可。', 'info');
         return;
     }
     if (currentMessages.length === 0) {
-        alert('空白对话无需删除，直接开始提问即可。');
+        showToast('空白对话无需删除，直接开始提问即可。', 'info');
         return;
     }
 

@@ -62,8 +62,11 @@ router.delete('/providers/:id', (params, body) => {
 
 // POST /api/agent/providers/:id/test - 测试供应商连接
 router.post('/providers/:id/test', async (params, body) => {
-    const result = await providers.testProvider(params.id);
-    return result;
+    const availableModels = await adapter.listProviderModels(params.id);
+    if (availableModels.length === 0) {
+        return { success: false, error: '连接失败：未能从供应商获取模型列表，请检查 API Key 和 API 地址。' };
+    }
+    return { success: true, message: `连接成功，已获取 ${availableModels.length} 个模型。`, model_count: availableModels.length };
 });
 
 // GET /api/agent/providers/:id/models - 获取供应商可用模型列表
@@ -131,8 +134,23 @@ router.delete('/models/:id', (params, body) => {
 
 // POST /api/agent/models/:id/test-capability - 测试模型能力
 router.post('/models/:id/test-capability', async (params, body) => {
-    // TODO: 实现能力测试
-    return { success: true, message: '能力测试功能待实现' };
+    const model = models.getModel(params.id);
+    if (!model) throw { status: 404, code: 'MODEL_NOT_FOUND' };
+    try {
+        const result = await adapter.chatWithModel(params.id, {
+            messages: [{ role: 'user', content: 'Hello, this is a capability test. Reply with just "ok".' }],
+            temperature: 0.1,
+            maxTokens: 50
+        });
+        return {
+            success: true,
+            message: '模型可用',
+            model: model.name,
+            response: result.content?.slice(0, 100)
+        };
+    } catch (err) {
+        return { success: false, error: '模型调用失败: ' + err.message };
+    }
 });
 
 // ========== 场景分配路由 ==========
@@ -196,13 +214,21 @@ router.post('/keys/:providerId/test', async (params, body) => {
         throw { status: 404, code: 'PROVIDER_NOT_FOUND' };
     }
     
-    // TODO: 实现实际的 API 测试
-    // 这里先返回模拟结果
-    return { 
+    const availableModels = await adapter.listProviderModels(params.providerId);
+    if (availableModels.length === 0) {
+        return {
+            providerId: params.providerId,
+            provider: provider.name,
+            success: false,
+            message: '连接失败：未能从供应商获取模型列表，请检查 API Key 和 API 地址。'
+        };
+    }
+    return {
         providerId: params.providerId,
         provider: provider.name,
         success: true,
-        message: '密钥格式验证通过，实际连接测试待实现'
+        message: `连接成功，已获取 ${availableModels.length} 个模型。`,
+        model_count: availableModels.length
     };
 });
 
@@ -229,10 +255,24 @@ router.post('/agent-chat', async (params, body) => {
     if (!body.messages || !Array.isArray(body.messages)) {
         throw { status: 400, code: 'MISSING_MESSAGES', message: '缺少 messages 参数' };
     }
-    
+
     const scene = body.scene || 'default';
-    const result = await runAgent(body.messages, { scene });
-    return result;
+    try {
+        const result = await runAgent(body.messages, { scene });
+        return result;
+    } catch (err) {
+        // 结构化中文错误，包含 scene 信息
+        return {
+            success: false,
+            error: err.message,
+            code: err.code || 'AGENT_ERROR',
+            scene: err.scene || scene,
+            statusCode: err.statusCode || 500,
+            suggestion: err.code === 'NO_MODEL_FOR_SCENE'
+                ? '请到 设置 → 场景分配 中为该场景指定模型，并确保对应供应商已保存有效的 API 密钥。'
+                : '请检查模型配置和网络连接后重试。'
+        };
+    }
 });
 
 // POST /api/agent/chat - 调用模型对话
@@ -318,7 +358,7 @@ convRouter.get('/conversations/stats', (params, body) => {
 // GET /api/agent/conversations/:id - 获取单个对话
 convRouter.get('/conversations/:id', (params, body) => {
     const conv = conversations.getConversation(params.id);
-    if (!conv) {
+    if (!conv || conv.status !== 'active') {
         throw { status: 404, code: 'CONVERSATION_NOT_FOUND' };
     }
     return conv;
