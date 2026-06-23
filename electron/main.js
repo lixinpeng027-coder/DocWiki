@@ -144,13 +144,18 @@ async function probeServer(timeoutMs = 800) {
     return isDev ? probeEndpoint('/api/tree', timeoutMs) : false;
 }
 
-async function waitForServer(timeoutMs = 15000) {
+async function waitForServer(timeoutMs = 30000) {
     const deadline = Date.now() + timeoutMs;
+    let attempts = 0;
     while (Date.now() < deadline) {
-        if (await probeServer()) return;
-        await new Promise(resolve => setTimeout(resolve, 200));
+        if (await probeServer()) {
+            console.log(`[Electron] 本地服务在第 ${attempts + 1} 次探测后成功响应`);
+            return;
+        }
+        attempts++;
+        await new Promise(resolve => setTimeout(resolve, 300));
     }
-    throw new Error(`本地服务未能在 ${Math.ceil(timeoutMs / 1000)} 秒内启动`);
+    throw new Error(`本地服务未能在 ${Math.ceil(timeoutMs / 1000)} 秒内启动（共探测 ${attempts} 次），请确认端口 4173 未被占用`);
 }
 
 /**
