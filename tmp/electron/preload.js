@@ -18,9 +18,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     showSaveDialog: (options) => ipcRenderer.invoke('show-save-dialog', options),
     showMessage: (options) => ipcRenderer.invoke('show-message-box', options),
 
-    // 菜单事件
-    onMenuNew: (callback) => ipcRenderer.on('menu-new', callback),
-    onMenuSave: (callback) => ipcRenderer.on('menu-save', callback),
+    // 菜单事件 — DocWiki 1.2.0 起已移除原生菜单，以下接口保留但不会触发
+    // onMenuNew / onMenuSave 已弃用，请勿依赖
 
     // ========== 关闭握手 ==========
     // 主进程发送 before-close 时，渲染进程尝试保存并回复 can-close 或 cancel-close
