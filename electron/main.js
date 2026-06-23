@@ -2,9 +2,106 @@ const { app, BrowserWindow, ipcMain, dialog, Menu, shell, nativeImage } = requir
 const { spawn } = require('node:child_process');
 const { cpSync, existsSync, mkdirSync, writeFileSync, accessSync, constants } = require('node:fs');
 const http = require('node:http');
+const https = require('node:https');
+const crypto = require('node:crypto');
 const path = require('node:path');
 const os = require('node:os');
-const updateManager = require('./update-manager.cjs');
+// ========== 更新管理器（内联自 update-manager.cjs，避免 ASAR 打包遗漏） ==========
+function parseVersion(value) {
+    const match = String(value || '').trim().replace(/^v/i, '').match(/^(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$/);
+    return match ? match.slice(1).map(Number) : null;
+}
+
+function compareVersions(left, right) {
+    const a = parseVersion(left);
+    const b = parseVersion(right);
+    if (!a || !b) throw new Error('版本号必须使用 x.y.z 格式');
+    for (let i = 0; i < 3; i += 1) {
+        if (a[i] !== b[i]) return a[i] > b[i] ? 1 : -1;
+    }
+    return 0;
+}
+
+function validateManifest(manifest, manifestUrl) {
+    if (!manifest || typeof manifest !== 'object') throw new Error('更新清单格式无效');
+    if (!parseVersion(manifest.version)) throw new Error('更新清单缺少有效版本号');
+    if (!manifest.url) throw new Error('更新清单缺少安装包地址');
+    const resolvedUrl = new URL(manifest.url, manifestUrl).toString();
+    if (!/^https?:\/\//i.test(resolvedUrl)) throw new Error('安装包地址必须使用 HTTP 或 HTTPS');
+    const sha256 = String(manifest.sha256 || '').trim().toLowerCase();
+    if (sha256 && !/^[a-f0-9]{64}$/.test(sha256)) throw new Error('SHA-256 校验值格式无效');
+    return { version: String(manifest.version).replace(/^v/i, ''), url: resolvedUrl, sha256, notes: String(manifest.notes || '') };
+}
+
+function request(url, destination) {
+    return new Promise((resolve, reject) => {
+        const client = url.startsWith('https:') ? https : http;
+        const req = client.get(url, { headers: { 'User-Agent': 'DocWiki-Updater' } }, response => {
+            if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
+                response.resume();
+                return resolve(request(new URL(response.headers.location, url).toString(), destination));
+            }
+            if (response.statusCode !== 200) {
+                response.resume();
+                return reject(new Error(`更新服务器返回 ${response.statusCode}`));
+            }
+            if (!destination) {
+                let body = '';
+                response.setEncoding('utf8');
+                response.on('data', chunk => { body += chunk; });
+                response.on('end', () => resolve(body));
+                response.on('error', reject);
+                return;
+            }
+            const output = require('node:fs').createWriteStream(destination);
+            response.pipe(output);
+            output.on('finish', () => output.close(() => resolve(destination)));
+            output.on('error', reject);
+        });
+        req.setTimeout(30000, () => req.destroy(new Error('更新服务器连接超时')));
+        req.on('error', reject);
+    });
+}
+
+async function fetchManifest(manifestUrl) {
+    if (!/^https?:\/\//i.test(String(manifestUrl || ''))) throw new Error('更新源必须使用 HTTP 或 HTTPS');
+    return validateManifest(JSON.parse(await request(manifestUrl)), manifestUrl);
+}
+
+function sha256File(filePath) {
+    return new Promise((resolve, reject) => {
+        const hash = crypto.createHash('sha256');
+        const input = require('node:fs').createReadStream(filePath);
+        input.on('data', chunk => hash.update(chunk));
+        input.on('end', () => resolve(hash.digest('hex')));
+        input.on('error', reject);
+    });
+}
+
+function copyIfExists(source, destination) {
+    if (require('node:fs').existsSync(source)) require('node:fs').cpSync(source, destination, { recursive: true, force: true });
+}
+
+function createUpdateBackup(installRoot, recoveryMarker) {
+    const backupRoot = require('node:fs').mkdtempSync(path.join(os.tmpdir(), 'DocWiki-update-backup-'));
+    copyIfExists(path.join(installRoot, 'data'), path.join(backupRoot, 'data'));
+    copyIfExists(path.join(installRoot, '.docwiki', 'state'), path.join(backupRoot, 'state'));
+    require('node:fs').mkdirSync(path.dirname(recoveryMarker), { recursive: true });
+    require('node:fs').writeFileSync(recoveryMarker, JSON.stringify({ backupRoot, createdAt: new Date().toISOString() }), 'utf8');
+    return backupRoot;
+}
+
+function restorePendingBackup(installRoot, recoveryMarker) {
+    if (!require('node:fs').existsSync(recoveryMarker)) return false;
+    const marker = JSON.parse(require('node:fs').readFileSync(recoveryMarker, 'utf8'));
+    if (!marker.backupRoot || !require('node:fs').existsSync(marker.backupRoot)) throw new Error('更新备份不存在，无法自动恢复');
+    copyIfExists(path.join(marker.backupRoot, 'data'), path.join(installRoot, 'data'));
+    copyIfExists(path.join(marker.backupRoot, 'state'), path.join(installRoot, '.docwiki', 'state'));
+    require('node:fs').rmSync(marker.backupRoot, { recursive: true, force: true });
+    require('node:fs').rmSync(recoveryMarker, { force: true });
+    return true;
+}
+// ========== 更新管理器结束 ==========
 
 const isDev = process.argv.includes('--dev');
 const port = Number(process.env.DOCWIKI_PORT || 4173);
@@ -462,17 +559,17 @@ ipcMain.handle('show-save-dialog', (_event, options) => dialog.showSaveDialog(ma
 ipcMain.handle('show-message-box', (_event, options) => dialog.showMessageBox(mainWindow, options));
 ipcMain.handle('open-external', (_event, url) => /^https?:\/\//i.test(url) ? shell.openExternal(url) : false);
 ipcMain.handle('check-update', async (_event, manifestUrl) => {
-    const manifest = await updateManager.fetchManifest(manifestUrl);
+    const manifest = await fetchManifest(manifestUrl);
     return {
         currentVersion: app.getVersion(),
-        updateAvailable: updateManager.compareVersions(manifest.version, app.getVersion()) > 0,
+        updateAvailable: compareVersions(manifest.version, app.getVersion()) > 0,
         manifest
     };
 });
 ipcMain.handle('install-update', async (_event, manifestUrl) => {
     if (isDev) throw new Error('开发模式不执行软件更新');
-    const manifest = await updateManager.fetchManifest(manifestUrl);
-    if (updateManager.compareVersions(manifest.version, app.getVersion()) <= 0) {
+    const manifest = await fetchManifest(manifestUrl);
+    if (compareVersions(manifest.version, app.getVersion()) <= 0) {
         return { installed: false, reason: 'latest' };
     }
     const confirmation = await dialog.showMessageBox(mainWindow, {
@@ -489,9 +586,9 @@ ipcMain.handle('install-update', async (_event, manifestUrl) => {
 
     const downloadDir = require('node:fs').mkdtempSync(path.join(os.tmpdir(), 'DocWiki-update-'));
     const installerPath = path.join(downloadDir, `DocWiki-Setup-${manifest.version}.exe`);
-    await updateManager.request(manifest.url, installerPath);
+    await request(manifest.url, installerPath);
     if (manifest.sha256) {
-        const actualHash = await updateManager.sha256File(installerPath);
+        const actualHash = await sha256File(installerPath);
         if (actualHash.toLowerCase() !== manifest.sha256) {
             require('node:fs').rmSync(downloadDir, { recursive: true, force: true });
             throw new Error('安装包 SHA-256 校验失败，更新已取消');
@@ -499,7 +596,7 @@ ipcMain.handle('install-update', async (_event, manifestUrl) => {
     }
 
     const installRoot = path.dirname(app.getPath('exe'));
-    updateManager.createUpdateBackup(installRoot, updateRecoveryMarker());
+    createUpdateBackup(installRoot, updateRecoveryMarker());
     const child = spawn(installerPath, [], { detached: true, stdio: 'ignore', windowsHide: false });
     child.unref();
     isQuitting = true;
@@ -511,7 +608,7 @@ ipcMain.handle('install-update', async (_event, manifestUrl) => {
 app.whenReady().then(async () => {
     try {
         if (!isDev) {
-            updateManager.restorePendingBackup(path.dirname(app.getPath('exe')), updateRecoveryMarker());
+            restorePendingBackup(path.dirname(app.getPath('exe')), updateRecoveryMarker());
         }
         await startServer();
         createWindow();

@@ -35,10 +35,8 @@
     "appId": "com.docwiki.desktop",
     "productName": "DocWiki",
     "asar": false,
-    "directories": {
-      "output": "F:/trae_workspace"
-    },
     "files": [
+      "electron/update-manager.cjs",
       "electron/**/*",
       "mcp/**/*",
       "server.mjs",
