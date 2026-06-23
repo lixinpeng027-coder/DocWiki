@@ -276,8 +276,17 @@ async function startServer() {
         stdio: ['ignore', 'pipe', 'pipe']
     });
     ownsServer = true;
-    serverProcess.stdout.on('data', chunk => console.log(`[Server] ${chunk.toString().trimEnd()}`));
-    serverProcess.stderr.on('data', chunk => console.error(`[Server] ${chunk.toString().trimEnd()}`));
+    const startupLog = [];
+    serverProcess.stdout.on('data', chunk => {
+        const msg = chunk.toString().trimEnd();
+        startupLog.push(msg);
+        console.log(`[Server] ${msg}`);
+    });
+    serverProcess.stderr.on('data', chunk => {
+        const msg = chunk.toString().trimEnd();
+        startupLog.push('[stderr] ' + msg);
+        console.error(`[Server] ${msg}`);
+    });
 
     const child = serverProcess;
     let ready = false;

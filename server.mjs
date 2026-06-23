@@ -715,15 +715,36 @@ async function handleStatic(response, url) {
     response.end(content);
 }
 
+// 启动日志文件
+const logDir = path.resolve(process.env.DOCWIKI_STATE_DIR || process.env.WEBWIKI_STATE_DIR || path.join(rootDir, '.webwiki'));
+const logPath = path.join(logDir, 'server.log');
+function serverLog(msg) {
+    const line = `[${new Date().toISOString()}] ${msg}`;
+    console.log(line);
+    try { require('fs').appendFileSync(logPath, line + '\n'); } catch {}
+}
+
+// 关闭旧进程
+async function killExisting() { try { require('child_process').execSync(`powershell -Command "Get-NetTCPConnection -LocalPort ${port} -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess | ForEach-Object { Stop-Process -Id $_ -Force }"`, { stdio: 'ignore', timeout: 5000 }); } catch {} }
+
 // 启动服务器
 async function startServer() {
+    serverLog('========== 服务启动 ==========');
+    serverLog(`Node: ${process.version}  Platform: ${process.platform}  Data: ${dataDir}  Port: ${port}`);
+
     // 初始化数据库
+    serverLog('正在初始化数据库...');
     await initDatabase();
+    serverLog('数据库初始化完成');
+
+    serverLog('正在重建文档索引...');
     const indexed = documentIndex.rebuildIndex();
-    console.log(`[Index] 已索引 data 目录中的 ${indexed.success} 个 Markdown 文件`);
-    
+    serverLog(`文档索引完成: ${indexed.success} 个文件`);
+
     // 导入 Agent 路由（数据库初始化后）
+    serverLog('正在加载 Agent 路由...');
     const { default: agentRouter } = await import('./server/routes/agent.js');
+    serverLog('Agent 路由加载完成');
     
     const server = http.createServer(async (request, response) => {
         const url = new URL(request.url, `http://${request.headers.host || 'localhost'}`);
@@ -739,7 +760,7 @@ async function startServer() {
     });
 
     server.listen(port, '127.0.0.1', () => {
-        console.log(`个人研发知识库已启动：http://127.0.0.1:${port}`);
+        serverLog(`HTTP 服务已启动 http://127.0.0.1:${port}`);
     });
 
     // 优雅关闭
