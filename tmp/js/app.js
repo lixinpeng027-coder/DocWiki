@@ -29,6 +29,53 @@ function showError(message) {
     showToast(message, 'error');
 }
 
+// 自定义确认对话框（替代 confirm）
+function showConfirm(message, title = 'DocWiki') {
+    return new Promise(resolve => {
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.style.display = 'flex';
+        overlay.innerHTML = '<div class="modal-content compact-modal-content">' +
+            '<div class="modal-header"><h3>' + escapeHtml(title) + '</h3></div>' +
+            '<div class="modal-body"><p style="margin:0;font-size:14px;">' + escapeHtml(message) + '</p></div>' +
+            '<div class="modal-footer">' +
+            '<button class="btn btn-secondary cancel-btn">取消</button>' +
+            '<button class="btn btn-primary confirm-btn">确定</button>' +
+            '</div></div>';
+        document.body.appendChild(overlay);
+        overlay.querySelector('.cancel-btn').onclick = () => { overlay.remove(); resolve(false); };
+        overlay.querySelector('.confirm-btn').onclick = () => { overlay.remove(); resolve(true); };
+        overlay.onclick = e => { if (e.target === overlay) { overlay.remove(); resolve(false); } };
+    });
+}
+
+// 自定义输入对话框（替代 prompt）
+function showPrompt(message, title = 'DocWiki', defaultValue = '', isPassword = false) {
+    return new Promise(resolve => {
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.style.display = 'flex';
+        overlay.innerHTML = '<div class="modal-content compact-modal-content">' +
+            '<div class="modal-header"><h3>' + escapeHtml(title) + '</h3></div>' +
+            '<div class="modal-body">' +
+            '<p style="margin:0 0 10px;font-size:14px;">' + escapeHtml(message) + '</p>' +
+            '<input class="form-input prompt-input" type="' + (isPassword ? 'password' : 'text') + '" value="' + escapeHtml(defaultValue) + '" autofocus>' +
+            '</div>' +
+            '<div class="modal-footer">' +
+            '<button class="btn btn-secondary cancel-btn">取消</button>' +
+            '<button class="btn btn-primary confirm-btn">确定</button>' +
+            '</div></div>';
+        document.body.appendChild(overlay);
+        const input = overlay.querySelector('.prompt-input');
+        input.focus();
+        input.select();
+        overlay.querySelector('.cancel-btn').onclick = () => { overlay.remove(); resolve(null); };
+        overlay.querySelector('.confirm-btn').onclick = () => { overlay.remove(); resolve(input.value); };
+        input.onkeydown = e => { if (e.key === 'Enter') { overlay.remove(); resolve(input.value); } if (e.key === 'Escape') { overlay.remove(); resolve(null); } };
+        overlay.onclick = e => { if (e.target === overlay) { overlay.remove(); resolve(null); } };
+    });
+}
+
 // 渲染项目文件树（Easy Vibe 风格：纯文字、无图标、去 .md）
 function renderDocTree() {
     const container = document.getElementById('docTree');
@@ -484,7 +531,7 @@ function ctxRename() {
 // ========== 新建文件（统一入口，通过 /api/file 创建） ==========
 async function ctxNewFile() {
     hideCtxMenu();
-    const name = prompt('请输入新文件名（不含 .md）：');
+    const name = await showPrompt('请输入新文件名（不含 .md）：', '新建文件');
     if (!name) return;
     const safeName = name.replace(/\.md$/i, '');
     const categoryRoot = categoryDirectoryMap[currentCategory];
@@ -503,9 +550,9 @@ async function ctxNewFile() {
 }
 
 // 新建文件夹
-function ctxNewFolder() {
+async function ctxNewFolder() {
     hideCtxMenu();
-    const name = prompt('请输入新文件夹名：');
+    const name = await showPrompt('请输入新文件夹名：', '新建文件夹');
     if (!name) return;
 
     let parentObj = projectTreeData;
@@ -525,11 +572,11 @@ function ctxNewFolder() {
 }
 
 // 删除
-function ctxDelete() {
+async function ctxDelete() {
     hideCtxMenu();
     if (!ctxTargetPath) return;
 
-    if (!confirm('确定要删除 "' + ctxTargetPath + '" 吗？')) return;
+    if (!await showConfirm('确定要删除 "' + ctxTargetPath + '" 吗？')) return;
 
     const parts = ctxTargetPath.split('/');
     let node = projectTreeData;
@@ -1082,7 +1129,7 @@ function selectTaskRow(tr) {
 }
 
 // ========== 删除选中行 ==========
-function deleteSelectedRow() {
+async function deleteSelectedRow() {
     const tbody = document.getElementById('taskTableBody');
     if (!tbody) return;
     const selected = tbody.querySelector('tr.selected');
@@ -1090,7 +1137,7 @@ function deleteSelectedRow() {
         showError('请先选中一条任务');
         return;
     }
-    if (confirm('确定删除选中的任务？')) {
+    if (await showConfirm('确定删除选中的任务？')) {
         selected.remove();
         const count = tbody.querySelectorAll('tr').length;
         const footer = document.querySelector('#taskEditMode .table-footer');
@@ -1670,8 +1717,8 @@ function insertEditorTable() {
     insertBlockAtEditorCursor('<table><thead><tr><th>列 1</th><th>列 2</th><th>列 3</th></tr></thead><tbody><tr><td>内容</td><td>内容</td><td>内容</td></tr><tr><td>内容</td><td>内容</td><td>内容</td></tr></tbody></table><p><br></p>');
 }
 
-function insertEditorLink() {
-    const url = prompt('请输入链接地址：', 'https://');
+async function insertEditorLink() {
+    const url = await showPrompt('请输入链接地址：', '插入链接', 'https://');
     if (!url) return;
     if (editorSourceMode) {
         insertTextAtSourceCursor('[链接文字](' + url + ')');
@@ -2198,7 +2245,7 @@ createNewFolder = async function() {
 // ctxNewFile 已在上方统一为 API 版本
 
 ctxNewFolder = async function() {
-    const name = prompt('请输入新文件夹名：');
+    const name = await showPrompt('请输入新文件夹名：', '新建文件夹');
     if (!name) return;
     const categoryRoot = categoryDirectoryMap[currentCategory];
     const parent = currentDocFile ? currentDocFile.split('/').slice(0, -1).join('/') : categoryRoot;
@@ -3065,7 +3112,7 @@ function selectHistoryVersion(el) {
 
 async function restoreSelectedHistory() {
     if (!currentDocFile || !selectedHistoryVersion) return;
-    if (!confirm('确定要恢复此历史版本吗？当前内容将被保存为历史版本。')) return;
+    if (!await showConfirm('确定要恢复此历史版本吗？当前内容将被保存为历史版本。')) return;
 
     try {
         const resp = await fetch('/api/history/restore', {

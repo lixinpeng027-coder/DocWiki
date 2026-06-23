@@ -69,8 +69,26 @@ function renderChatList(conversations) {
     `).join('');
 }
 
-// 创建新对话
-async function createNewConversation() {
+function resetToNewConversation() {
+    currentConversation = null;
+    currentMessages = [];
+    const title = document.getElementById('chatPanelTitle');
+    const scene = document.getElementById('chatPanelScene');
+    const panel = document.getElementById('chatPanel');
+    if (title) title.textContent = '新对话';
+    if (scene) scene.textContent = getSceneLabel('default');
+    if (panel) panel.style.display = 'flex';
+    renderMessages();
+    document.querySelectorAll('.chat-item.active').forEach(item => item.classList.remove('active'));
+    window.setTimeout(() => document.getElementById('chatInput')?.focus(), 0);
+}
+
+// 加号只创建本地草稿；发送第一条消息时才持久化，避免累积空白会话。
+function createNewConversation() {
+    resetToNewConversation();
+}
+
+async function persistNewConversation() {
     try {
         const response = await fetch('/api/agent/conversations', {
             method: 'POST',
@@ -79,12 +97,17 @@ async function createNewConversation() {
         });
         const data = await response.json();
         if (data.conversation) {
+            currentConversation = data.conversation;
+            currentMessages = [];
+            document.getElementById('chatPanelTitle').textContent = data.conversation.title || '新对话';
+            document.getElementById('chatPanelScene').textContent = getSceneLabel(data.conversation.scene);
             await loadConversations();
-            openConversation(data.conversation.id);
+            return data.conversation;
         }
     } catch (err) {
         console.error('创建对话失败:', err);
     }
+    return null;
 }
 
 // 打开对话
@@ -219,7 +242,7 @@ async function handleNavConfirmYes(page, file) {
     const saved = await saveAllChanges();
     if (!saved) {
         // 保存失败，询问用户是否继续
-        const forceNavigation = confirm('保存未成功的修改，仍然继续跳转吗？');
+        const forceNavigation = await showConfirm('保存未成功的修改，仍然继续跳转吗？');
         if (!forceNavigation) return;
     }
 
@@ -282,7 +305,8 @@ function executeNavigation(page, file) {
 function formatMessageContent(content) {
     if (!content) return '';
     if (typeof marked !== 'undefined') {
-        return marked.parse(content);
+        const raw = marked.parse(content);
+        return typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(raw) : raw;
     }
     return escapeHtml(content).replace(/\n/g, '<br>');
 }
@@ -297,7 +321,7 @@ async function sendChatMessage() {
     if (!content) return;
 
     if (!currentConversation) {
-        await createNewConversation();
+        await persistNewConversation();
         if (!currentConversation) return;
     }
 
@@ -354,7 +378,8 @@ async function sendChatMessage() {
         if (data.success && data.content) {
             let aiContent = data.content;
 
-            currentChatModel = data.used_model || currentChatModel;
+            // 严格使用此次响应实际使用的模型，不回退到上一次/其它模型
+            currentChatModel = data.used_model || null;
             updateCurrentModelDisplay();
             const usedModelId = currentChatModel?.model_id || currentChatModel?.id || null;
 
@@ -405,9 +430,11 @@ async function sendChatMessage() {
                 renderMessages();
             }
         } else if (data.error) {
+            currentChatModel = null;
+            updateCurrentModelDisplay();
             const suggestion = data.suggestion ? `\n\n💡 建议：${data.suggestion}` : '';
-            const errorMsg = { 
-                role: 'assistant', 
+            const errorMsg = {
+                role: 'assistant',
                 content: `⚠️ ${data.error}${suggestion}`,
                 created_at: new Date().toISOString()
             };
@@ -415,10 +442,12 @@ async function sendChatMessage() {
             renderMessages();
         }
     } catch (err) {
+        currentChatModel = null;
+        updateCurrentModelDisplay();
         // 移除思考状态
         const thinkingIdx = currentMessages.findIndex(m => m.thinking);
         if (thinkingIdx >= 0) currentMessages.splice(thinkingIdx, 1);
-        
+
         console.error('发送消息失败:', err);
         const errorMsg = { 
             role: 'assistant', 
@@ -453,7 +482,7 @@ async function updateConversationTitle(id, title) {
 
 // 删除对话
 async function deleteConversation(id) {
-    if (!confirm('确定要删除这个对话吗？')) return;
+    if (!await showConfirm('确定要删除这个对话吗？')) return;
 
     try {
         await fetch(`/api/agent/conversations/${id}`, { method: 'DELETE' });
@@ -461,19 +490,43 @@ async function deleteConversation(id) {
         if (currentConversation?.id === id) {
             currentConversation = null;
             currentMessages = [];
-            document.getElementById('chatPanel').style.display = 'none';
         }
 
         await loadConversations();
+        return true;
     } catch (err) {
         console.error('删除对话失败:', err);
     }
+    return false;
 }
 
 // 删除当前对话
 async function deleteCurrentConversation() {
-    if (currentConversation) {
-        await deleteConversation(currentConversation.id);
+    if (!currentConversation) {
+        showToast('空白对话无需删除，直接开始提问即可。', 'info');
+        return;
+    }
+    if (currentMessages.length === 0) {
+        showToast('空白对话无需删除，直接开始提问即可。', 'info');
+        return;
+    }
+
+    const deleted = await deleteConversation(currentConversation.id);
+    if (!deleted) return;
+    // 删除后：如果有其他对话，打开第一个；否则打开新对话面板
+    if (!currentConversation) {
+        try {
+            const response = await fetch('/api/agent/conversations');
+            const data = await response.json();
+            const remaining = data.conversations || [];
+            if (remaining.length > 0) {
+                await openConversation(remaining[0].id);
+            } else {
+                resetToNewConversation();
+            }
+        } catch {
+            resetToNewConversation();
+        }
     }
 }
 
