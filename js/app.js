@@ -843,7 +843,7 @@ function navigateToDoc(category, docName) {
     // 更新面包屑
     const breadcrumb = document.getElementById('docBreadcrumb');
     if (breadcrumb) {
-        breadcrumb.innerHTML = '<span>' + category + '</span><span class="doc-breadcrumb-sep">/</span><span class="doc-breadcrumb-current">' + docName + '</span>';
+        breadcrumb.innerHTML = '<span>' + escapeHtml(category) + '</span><span class="doc-breadcrumb-sep">/</span><span class="doc-breadcrumb-current">' + escapeHtml(docName) + '</span>';
     }
 
     // 更新阅读内容
@@ -2657,8 +2657,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (result.updateAvailable) {
                 if (statusEl) statusEl.textContent = '';
                 if (resultRow) resultRow.style.display = 'flex';
-                if (resultText) resultText.innerHTML = '<span style="color:#22c55e;font-weight:600;">发现新版本 v' + result.manifest.version + '</span>' +
-                    (result.manifest.notes ? '<br><span style="color:#94a3b8;">' + result.manifest.notes + '</span>' : '') +
+                if (resultText) resultText.innerHTML = '<span style="color:#22c55e;font-weight:600;">发现新版本 v' + escapeHtml(result.manifest.version) + '</span>' +
+                    (result.manifest.notes ? '<br><span style="color:#94a3b8;">' + escapeHtml(result.manifest.notes) + '</span>' : '') +
                     ' <button class="btn btn-primary" style="margin-left:12px;padding:6px 16px;" onclick="installDocWikiUpdate()">下载并安装</button>';
                 showToast('发现新版本 v' + result.manifest.version, 'info');
             } else {
