@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog, Menu, shell, nativeImage } = require('electron');
 const { spawn } = require('node:child_process');
 const { cpSync, existsSync, mkdirSync, writeFileSync, accessSync, constants } = require('node:fs');
+const fs = require('node:fs');  // 用于内联的 update-manager 函数
 const http = require('node:http');
 const https = require('node:https');
 const crypto = require('node:crypto');
@@ -33,13 +34,14 @@ function validateManifest(manifest, manifestUrl) {
     return { version: String(manifest.version).replace(/^v/i, ''), url: resolvedUrl, sha256, notes: String(manifest.notes || '') };
 }
 
-function request(url, destination) {
+function request(url, destination, _redirectCount = 0) {
+    if (_redirectCount > 10) return Promise.reject(new Error('更新服务器重定向次数过多'));
     return new Promise((resolve, reject) => {
         const client = url.startsWith('https:') ? https : http;
         const req = client.get(url, { headers: { 'User-Agent': 'DocWiki-Updater' } }, response => {
             if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
                 response.resume();
-                return resolve(request(new URL(response.headers.location, url).toString(), destination));
+                return resolve(request(new URL(response.headers.location, url).toString(), destination, _redirectCount + 1));
             }
             if (response.statusCode !== 200) {
                 response.resume();
@@ -53,8 +55,9 @@ function request(url, destination) {
                 response.on('error', reject);
                 return;
             }
-            const output = require('node:fs').createWriteStream(destination);
+            const output = fs.createWriteStream(destination);
             response.pipe(output);
+            response.on('error', err => { output.destroy(); reject(err); });
             output.on('finish', () => output.close(() => resolve(destination)));
             output.on('error', reject);
         });
@@ -71,7 +74,7 @@ async function fetchManifest(manifestUrl) {
 function sha256File(filePath) {
     return new Promise((resolve, reject) => {
         const hash = crypto.createHash('sha256');
-        const input = require('node:fs').createReadStream(filePath);
+        const input = fs.createReadStream(filePath);
         input.on('data', chunk => hash.update(chunk));
         input.on('end', () => resolve(hash.digest('hex')));
         input.on('error', reject);
@@ -79,26 +82,26 @@ function sha256File(filePath) {
 }
 
 function copyIfExists(source, destination) {
-    if (require('node:fs').existsSync(source)) require('node:fs').cpSync(source, destination, { recursive: true, force: true });
+    if (fs.existsSync(source)) fs.cpSync(source, destination, { recursive: true, force: true });
 }
 
 function createUpdateBackup(installRoot, recoveryMarker) {
-    const backupRoot = require('node:fs').mkdtempSync(path.join(os.tmpdir(), 'DocWiki-update-backup-'));
+    const backupRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'DocWiki-update-backup-'));
     copyIfExists(path.join(installRoot, 'data'), path.join(backupRoot, 'data'));
     copyIfExists(path.join(installRoot, '.docwiki', 'state'), path.join(backupRoot, 'state'));
-    require('node:fs').mkdirSync(path.dirname(recoveryMarker), { recursive: true });
-    require('node:fs').writeFileSync(recoveryMarker, JSON.stringify({ backupRoot, createdAt: new Date().toISOString() }), 'utf8');
+    fs.mkdirSync(path.dirname(recoveryMarker), { recursive: true });
+    fs.writeFileSync(recoveryMarker, JSON.stringify({ backupRoot, createdAt: new Date().toISOString() }), 'utf8');
     return backupRoot;
 }
 
 function restorePendingBackup(installRoot, recoveryMarker) {
-    if (!require('node:fs').existsSync(recoveryMarker)) return false;
-    const marker = JSON.parse(require('node:fs').readFileSync(recoveryMarker, 'utf8'));
-    if (!marker.backupRoot || !require('node:fs').existsSync(marker.backupRoot)) throw new Error('更新备份不存在，无法自动恢复');
+    if (!fs.existsSync(recoveryMarker)) return false;
+    const marker = JSON.parse(fs.readFileSync(recoveryMarker, 'utf8'));
+    if (!marker.backupRoot || !fs.existsSync(marker.backupRoot)) throw new Error('更新备份不存在，无法自动恢复');
     copyIfExists(path.join(marker.backupRoot, 'data'), path.join(installRoot, 'data'));
     copyIfExists(path.join(marker.backupRoot, 'state'), path.join(installRoot, '.docwiki', 'state'));
-    require('node:fs').rmSync(marker.backupRoot, { recursive: true, force: true });
-    require('node:fs').rmSync(recoveryMarker, { force: true });
+    fs.rmSync(marker.backupRoot, { recursive: true, force: true });
+    fs.rmSync(recoveryMarker, { force: true });
     return true;
 }
 // ========== 更新管理器结束 ==========
@@ -192,7 +195,7 @@ function prepareStorage() {
     try {
         const testFile = path.join(stateDir, '.writetest');
         writeFileSync(testFile, 'ok', 'utf8');
-        require('fs').unlinkSync(testFile);
+        fs.unlinkSync(testFile);
     } catch (err) {
         dialog.showErrorBox(
             '启动失败',
@@ -584,13 +587,13 @@ ipcMain.handle('install-update', async (_event, manifestUrl) => {
     });
     if (confirmation.response !== 0) return { installed: false, reason: 'cancelled' };
 
-    const downloadDir = require('node:fs').mkdtempSync(path.join(os.tmpdir(), 'DocWiki-update-'));
+    const downloadDir = fs.mkdtempSync(path.join(os.tmpdir(), 'DocWiki-update-'));
     const installerPath = path.join(downloadDir, `DocWiki-Setup-${manifest.version}.exe`);
     await request(manifest.url, installerPath);
     if (manifest.sha256) {
         const actualHash = await sha256File(installerPath);
         if (actualHash.toLowerCase() !== manifest.sha256) {
-            require('node:fs').rmSync(downloadDir, { recursive: true, force: true });
+            fs.rmSync(downloadDir, { recursive: true, force: true });
             throw new Error('安装包 SHA-256 校验失败，更新已取消');
         }
     }

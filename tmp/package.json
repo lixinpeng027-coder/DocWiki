@@ -35,8 +35,10 @@
     "appId": "com.docwiki.desktop",
     "productName": "DocWiki",
     "asar": false,
+    "directories": {
+      "output": "F:/trae_workspace/releases"
+    },
     "files": [
-      "electron/update-manager.cjs",
       "electron/**/*",
       "mcp/**/*",
       "server.mjs",
@@ -76,7 +78,7 @@
     ],
     "win": {
       "target": "nsis",
-      "artifactName": "DocWiki-Setup-${version}.exe",
+      "artifactName": "${version}/DocWiki-Setup-${version}.exe",
       "icon": "assets/icon.ico",
       "sign": false
     },
