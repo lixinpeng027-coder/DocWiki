@@ -2639,7 +2639,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function checkForDocWikiUpdate(showToastFlag) {
         const url = localStorage.getItem('wiki_update_manifest_url') ||
                     document.getElementById('updateManifestUrl')?.value?.trim() ||
-                    'https://github.com/lixinpeng027-coder/DocWiki/releases/latest/download/latest.json';
+                    'https://raw.githubusercontent.com/lixinpeng027-coder/DocWiki/main/latest.json';
         if (!url) {
             if (showToastFlag) showToast('请先设置更新源地址', 'warning');
             return;
@@ -2676,7 +2676,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function installDocWikiUpdate() {
         const url = localStorage.getItem('wiki_update_manifest_url') ||
                     document.getElementById('updateManifestUrl')?.value?.trim() ||
-                    'https://github.com/lixinpeng027-coder/DocWiki/releases/latest/download/latest.json';
+                    'https://raw.githubusercontent.com/lixinpeng027-coder/DocWiki/main/latest.json';
         if (!url || !window.isElectron) return;
         try {
             await window.electronAPI.installUpdate(url);

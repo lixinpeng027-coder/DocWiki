@@ -6,7 +6,7 @@ let settingsProviders = [];
 let settingsModels = [];
 let settingsAssignments = [];
 const UPDATE_MANIFEST_STORAGE_KEY = 'wiki_update_manifest_url';
-const DEFAULT_UPDATE_MANIFEST_URL = 'https://github.com/lixinpeng027-coder/DocWiki/releases/latest/download/latest.json';
+const DEFAULT_UPDATE_MANIFEST_URL = 'https://raw.githubusercontent.com/lixinpeng027-coder/DocWiki/main/latest.json';
 
 function loadUpdateManifestUrl() {
     const input = document.getElementById('updateManifestUrl');
