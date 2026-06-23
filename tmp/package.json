@@ -1,6 +1,6 @@
 {
   "name": "docwiki-desktop",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "DocWiki 个人研发知识库 - 桌面版",
   "type": "module",
   "main": "electron/main.js",
