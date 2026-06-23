@@ -8,7 +8,11 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
-const keyDir = path.join(rootDir, '.webwiki');
+const keyDir = path.resolve(
+    process.env.DOCWIKI_STATE_DIR ||
+    process.env.WEBWIKI_STATE_DIR ||
+    path.join(rootDir, '.webwiki')
+);
 const masterKeyPath = path.join(keyDir, 'master.key');
 
 // 确保目录存在

@@ -530,9 +530,9 @@ function renderManualModelProviderSelect() {
     const select = document.getElementById('manualModelProvider');
     if (!select) return;
     
-    select.innerHTML = '<option value="">请选择厂商</option>' + 
-        settingsProviders.filter(p => p.hasKey).map(p => 
-            `<option value="${p.id}">${p.name}</option>`
+    select.innerHTML = '<option value="">请选择厂商</option>' +
+        settingsProviders.filter(p => p.hasKey).map(p =>
+            `<option value="${p.id}">${escapeHtml(p.name)}</option>`
         ).join('');
 }
 
@@ -582,8 +582,8 @@ function renderProviderSelect() {
     const select = document.getElementById('providerSelect');
     if (!select) return;
     
-    select.innerHTML = '<option value="">请选择厂商</option>' + 
-        settingsProviders.map(p => `<option value="${p.id}" data-url="${p.api_base_url}">${p.name}</option>`).join('');
+    select.innerHTML = '<option value="">请选择厂商</option>' +
+        settingsProviders.map(p => `<option value="${p.id}" data-url="${p.api_base_url}">${escapeHtml(p.name)}</option>`).join('');
     
     // 监听厂商选择变化
     select.onchange = function() {
@@ -726,9 +726,9 @@ async function refreshModelsList() {
         if (data.models && data.models.length > 0) {
             // 填充模型下拉框
             const modelSelect = document.getElementById('providerDefaultModel');
-            modelSelect.innerHTML = '<option value="">请选择模型</option>' + 
-                data.models.map(model => 
-                    `<option value="${model.id}">${model.name || model.id}</option>`
+            modelSelect.innerHTML = '<option value="">请选择模型</option>' +
+                data.models.map(model =>
+                    `<option value="${model.id}">${escapeHtml(model.name || model.id)}</option>`
                 ).join('');
             
             // 自动选择第一个模型
@@ -846,10 +846,10 @@ async function saveProviderConfig() {
             
             // 重新填充模型下拉框
             const providerModels = settingsModels.filter(m => m.provider_id === providerId);
-            modelSelect.innerHTML = '<option value="">请选择模型</option>' + 
+            modelSelect.innerHTML = '<option value="">请选择模型</option>' +
                 '<option value="__manual__">手动输入模型 ID</option>' +
-                providerModels.map(m => 
-                    `<option value="${m.model_id}" ${m.model_id === defaultModel ? 'selected' : ''}>${m.name}</option>`
+                providerModels.map(m =>
+                    `<option value="${m.model_id}" ${m.model_id === defaultModel ? 'selected' : ''}>${escapeHtml(m.name)}</option>`
                 ).join('');
             
             // 如果是手动输入的模型，保持手动输入状态

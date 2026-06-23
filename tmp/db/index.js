@@ -6,8 +6,9 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
-const dbDir = process.env.WEBWIKI_STATE_DIR
-    ? path.resolve(process.env.WEBWIKI_STATE_DIR)
+const runtimeStateDir = process.env.DOCWIKI_STATE_DIR || process.env.WEBWIKI_STATE_DIR;
+const dbDir = runtimeStateDir
+    ? path.resolve(runtimeStateDir)
     : path.join(rootDir, '.webwiki');
 const dbPath = path.join(dbDir, 'agent.db');
 

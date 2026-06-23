@@ -1,5 +1,5 @@
 import http from 'node:http';
-import { readFile, writeFile, mkdir, readdir, stat, rename, rm } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, readdir, stat, rename, rm, cp } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -10,6 +10,7 @@ import * as documentIndex from './core/documents.js';
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.resolve(process.env.DOCWIKI_DATA_DIR || path.join(rootDir, 'data'));
 const port = Number(process.env.PORT || 4173);
+const appVersion = JSON.parse(await readFile(path.join(rootDir, 'package.json'), 'utf8')).version;
 
 const mimeTypes = {
     '.css': 'text/css; charset=utf-8',
@@ -87,7 +88,7 @@ async function scanDirectory(absoluteDir, relativeDir = '') {
 
 async function handleApi(request, response, url) {
     if (request.method === 'GET' && url.pathname === '/api/health') {
-        return sendJson(response, 200, { status: 'ok', service: 'docwiki', version: '1.0.0' });
+        return sendJson(response, 200, { status: 'ok', service: 'docwiki', version: appVersion });
     }
     if (request.method === 'GET' && url.pathname === '/api/tree') {
         await mkdir(dataDir, { recursive: true });
@@ -211,6 +212,41 @@ async function handleApi(request, response, url) {
         await rm(resolveDataPath(relativePath), { recursive: true, force: false });
         documentIndex.rebuildIndex();
         return sendJson(response, 200, { path: relativePath });
+    }
+
+    // ========== POST /api/entry/copy — 文件/文件夹递归复制 ==========
+    if (request.method === 'POST' && url.pathname === '/api/entry/copy') {
+        const body = await readBody(request);
+        const sourcePath = resolveDataPath(body.path);
+        const targetPath = resolveDataPath(body.newPath);
+
+        // 禁止复制到自身或子目录
+        const targetDir = path.dirname(targetPath);
+        const sourceDir = sourcePath;
+        const relSource = path.relative(targetDir, sourceDir);
+        if (targetPath === sourcePath) {
+            return sendJson(response, 400, { error: '不能复制到自身路径' });
+        }
+        if (targetPath.startsWith(sourcePath + path.sep)) {
+            return sendJson(response, 400, { error: '不能将文件夹复制到自身子目录' });
+        }
+
+        // 检查目标是否已存在
+        try {
+            await stat(targetPath);
+            return sendJson(response, 409, { error: '目标已存在，请更换名称或位置' });
+        } catch (err) {
+            if (err.code !== 'ENOENT') throw err;
+        }
+
+        // 确保目标父目录存在
+        await mkdir(path.dirname(targetPath), { recursive: true });
+
+        // 递归复制
+        await cp(sourcePath, targetPath, { recursive: true });
+
+        documentIndex.rebuildIndex();
+        return sendJson(response, 201, { path: body.newPath });
     }
 
     // ========== 搜索 API ==========
@@ -354,48 +390,280 @@ async function handleApi(request, response, url) {
         }
     }
 
-    // ========== 任务 API 路由 ==========
-    const taskJsonPath = path.join(dataDir, '任务', '任务清单.json');
-    const taskMdPath = path.join(dataDir, '任务', '任务清单.md');
+    // ========== 任务 API 路由（Markdown 主存储） ==========
+    const todoDir = path.join(dataDir, '任务', '待办');
+    const doneDir = path.join(dataDir, '任务', '已完成');
+    const legacyTaskJsonPath = path.join(dataDir, '任务', '任务清单.json');
 
-    // GET /api/tasks — 获取任务数据
+    // 确保目录存在
+    await mkdir(todoDir, { recursive: true });
+    await mkdir(doneDir, { recursive: true });
+
+    // ★ 辅助：从 .md 文件读取任务（YAML frontmatter + body）
+    async function readTaskFromFile(filePath) {
+        const { default: matter } = await import('gray-matter');
+        const raw = await readFile(filePath, 'utf-8');
+        const parsed = matter(raw);
+        return { ...parsed.data, detail: parsed.content.trim() || parsed.data.detail || '' };
+    }
+
+    // ★ 辅助：将任务写入 .md 文件（YAML frontmatter）
+    async function writeTaskToFile(filePath, task) {
+        const { default: matter } = await import('gray-matter');
+        const detail = task.detail || '';
+        const frontmatter = { ...task };
+        delete frontmatter.detail;
+        const content = matter.stringify(detail, frontmatter);
+        await mkdir(path.dirname(filePath), { recursive: true });
+        await writeFile(filePath, content, 'utf-8');
+    }
+
+    // ★ 辅助：安全文件名（去除不安全字符，保留中文）
+    function safeFileName(name) {
+        return String(name || 'untitled')
+            .replace(/[<>:"/\\|?*]/g, '-')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-|-$/g, '')
+            .slice(0, 100) || 'untitled';
+    }
+
+    // ★ 辅助：生成稳定 ID（基于 name + 创建时间）
+    function generateTaskId(task) {
+        if (task.id && /^[a-f0-9-]{8,}$/.test(String(task.id))) return String(task.id);
+        // 使用 name + timestamp 生成确定性 ID
+        const seed = (task.name || '') + (task.createdAt || Date.now());
+        let hash = 0;
+        for (let i = 0; i < seed.length; i++) {
+            const ch = seed.charCodeAt(i);
+            hash = ((hash << 5) - hash) + ch;
+            hash |= 0;
+        }
+        const hex = Math.abs(hash).toString(16).padStart(8, '0');
+        return hex + '-' + Date.now().toString(36).slice(-4);
+    }
+
+    // ★ 辅助：扫描目录下所有 .md 任务文件
+    async function scanTaskDir(dir) {
+        try {
+            const entries = await readdir(dir, { withFileTypes: true });
+            const tasks = [];
+            for (const entry of entries) {
+                if (!entry.isFile() || !entry.name.endsWith('.md')) continue;
+                try {
+                    const task = await readTaskFromFile(path.join(dir, entry.name));
+                    if (!task.id) task.id = generateTaskId(task);
+                    tasks.push(task);
+                } catch (e) { /* skip corrupted files */ }
+            }
+            return tasks;
+        } catch (e) {
+            if (e.code === 'ENOENT') return [];
+            throw e;
+        }
+    }
+
+    // ★ 辅助：在目录中查找任务文件
+    async function findTaskFile(dir, taskId) {
+        try {
+            const entries = await readdir(dir, { withFileTypes: true });
+            for (const entry of entries) {
+                if (!entry.isFile() || !entry.name.endsWith('.md')) continue;
+                try {
+                    const task = await readTaskFromFile(path.join(dir, entry.name));
+                    if (String(task.id) === String(taskId)) return entry.name;
+                } catch (e) { /* skip */ }
+            }
+        } catch (e) { if (e.code !== 'ENOENT') throw e; }
+        return null;
+    }
+
+    // GET /api/tasks — 获取任务数据（保持 {tasks, completedTasks} 兼容）
     if (request.method === 'GET' && url.pathname === '/api/tasks') {
         try {
-            const raw = await readFile(taskJsonPath, 'utf-8');
-            return sendJson(response, 200, JSON.parse(raw));
-        } catch {
+            // ★ 优先从 Markdown 目录读取
+            const [activeTasks, completedTasks] = await Promise.all([
+                scanTaskDir(todoDir),
+                scanTaskDir(doneDir)
+            ]);
+            if (activeTasks.length > 0 || completedTasks.length > 0) {
+                return sendJson(response, 200, { tasks: activeTasks, completedTasks });
+            }
+            // Fallback: 从旧 JSON 读取（迁移场景）
+            try {
+                const raw = await readFile(legacyTaskJsonPath, 'utf-8');
+                const legacy = JSON.parse(raw);
+                return sendJson(response, 200, { tasks: legacy.tasks || [], completedTasks: legacy.completedTasks || [] });
+            } catch {
+                return sendJson(response, 200, { tasks: [], completedTasks: [] });
+            }
+        } catch (e) {
             return sendJson(response, 200, { tasks: [], completedTasks: [] });
         }
     }
 
-    // POST /api/tasks — 保存任务数据
+    // POST /api/tasks — 增删改 + 目录移动
     if (request.method === 'POST' && url.pathname === '/api/tasks') {
         const body = await readBody(request);
-        const data = { tasks: body.tasks || [], completedTasks: body.completedTasks || [] };
-        // 保存 JSON
-        await mkdir(path.dirname(taskJsonPath), { recursive: true });
-        await writeFile(taskJsonPath, JSON.stringify(data, null, 2), 'utf-8');
-        // 生成 Markdown
-        let md = '# 任务清单\n\n本文件记录所有研发任务的状态和详情。\n';
-        const active = data.tasks.filter(t => t.status === '进行中');
-        const pending = data.tasks.filter(t => t.status === '待开始');
-        const completed = [...data.completedTasks, ...data.tasks.filter(t => t.status === '已完成')];
-        if (active.length) {
-            md += '\n## 进行中\n\n';
-            active.forEach((t, i) => { md += `### ${i+1}. ${t.name}\n- **优先级**: ${t.priority}\n- **状态**: ${t.status}\n- **截止日期**: ${t.deadline || ''}\n- **所属项目**: ${t.category} > ${t.project}${t.sub ? ' > ' + t.sub : ''}\n- **描述**: ${t.description || ''}\n\n`; });
+        const action = body.action || 'sync'; // sync | create | update | delete | complete | restore | migrate
+
+        if (action === 'migrate') {
+            // ★ 一次性迁移：将旧 JSON 和 localStorage 数据转为 Markdown
+            const migrated = [];
+            try {
+                const raw = await readFile(legacyTaskJsonPath, 'utf-8');
+                const legacy = JSON.parse(raw);
+                const allTasks = [...(legacy.tasks || []), ...(legacy.completedTasks || [])];
+                for (const task of allTasks) {
+                    if (!task.id) task.id = generateTaskId(task);
+                    task.updatedAt = task.updatedAt || new Date().toISOString();
+                    const isCompleted = task.status === '已完成' || legacy.completedTasks?.some(t => t.name === task.name);
+                    const targetDir = isCompleted ? doneDir : todoDir;
+                    const fname = safeFileName(task.name) + '-' + task.id.slice(0, 6) + '.md';
+                    const filePath = path.join(targetDir, fname);
+                    try {
+                        await stat(filePath);
+                        continue; // 已存在，不覆盖
+                    } catch (e) {
+                        if (e.code !== 'ENOENT') throw e;
+                    }
+                    await writeTaskToFile(filePath, task);
+                    migrated.push(task.name);
+                }
+                // 迁移成功 → 重命名旧 JSON 为 .migrated 备份
+                await rename(legacyTaskJsonPath, legacyTaskJsonPath.replace('.json', '.json.migrated'));
+                return sendJson(response, 200, { success: true, migrated: migrated.length, message: `已迁移 ${migrated.length} 条任务到 Markdown 格式` });
+            } catch (e) {
+                if (e.code === 'ENOENT') {
+                    return sendJson(response, 200, { success: true, migrated: 0, message: '无旧 JSON 数据需要迁移' });
+                }
+                return sendJson(response, 500, { error: '迁移失败: ' + e.message });
+            }
         }
-        if (pending.length) {
-            md += '\n## 待开始\n\n';
-            pending.forEach((t, i) => { md += `### ${active.length+i+1}. ${t.name}\n- **优先级**: ${t.priority}\n- **状态**: ${t.status}\n- **截止日期**: ${t.deadline || ''}\n- **所属项目**: ${t.category} > ${t.project}${t.sub ? ' > ' + t.sub : ''}\n- **描述**: ${t.description || ''}\n\n`; });
+
+        if (action === 'sync') {
+            // ★ 全量同步：前端推送 {tasks, completedTasks} → 写入 Markdown
+            const tasks = body.tasks || [];
+            const completedTasks = body.completedTasks || [];
+
+            // 清空现有 .md 文件（幂等重写）
+            for (const dir of [todoDir, doneDir]) {
+                try {
+                    const entries = await readdir(dir, { withFileTypes: true });
+                    for (const entry of entries) {
+                        if (entry.isFile() && entry.name.endsWith('.md')) {
+                            await rm(path.join(dir, entry.name), { force: true });
+                        }
+                    }
+                } catch (e) { if (e.code !== 'ENOENT') throw e; }
+            }
+
+            // 写入待办任务
+            for (const task of tasks) {
+                if (!task.id) task.id = generateTaskId(task);
+                task.updatedAt = new Date().toISOString();
+                const fname = safeFileName(task.name) + '-' + task.id.slice(0, 6) + '.md';
+                await writeTaskToFile(path.join(todoDir, fname), task);
+            }
+
+            // 写入已完成任务
+            for (const task of completedTasks) {
+                if (!task.id) task.id = generateTaskId(task);
+                task.updatedAt = new Date().toISOString();
+                const fname = safeFileName(task.name) + '-' + task.id.slice(0, 6) + '.md';
+                await writeTaskToFile(path.join(doneDir, fname), task);
+            }
+
+            return sendJson(response, 200, { success: true, count: tasks.length + completedTasks.length });
         }
-        if (completed.length) {
-            md += '\n## 已完成\n\n';
-            completed.forEach((t, i) => { md += `### ${active.length+pending.length+i+1}. ${t.name}\n- **优先级**: ${t.priority}\n- **状态**: ${t.status || '已完成'}\n- **完成时间**: ${t.completedAt || t.deadline || ''}\n- **所属项目**: ${t.category} > ${t.project}${t.sub ? ' > ' + t.sub : ''}\n- **描述**: ${t.description || ''}\n\n`; });
+
+        if (action === 'create') {
+            const task = { ...body.task };
+            if (!task.name) return sendJson(response, 400, { error: '任务名称不能为空' });
+            task.id = generateTaskId(task);
+            task.status = task.status || '待开始';
+            task.updatedAt = new Date().toISOString();
+            const targetDir = task.status === '已完成' ? doneDir : todoDir;
+            const fname = safeFileName(task.name) + '-' + task.id.slice(0, 6) + '.md';
+            const filePath = path.join(targetDir, fname);
+            try {
+                await stat(filePath);
+                return sendJson(response, 409, { error: '同名任务已存在' });
+            } catch (e) { if (e.code !== 'ENOENT') throw e; }
+            await writeTaskToFile(filePath, task);
+            return sendJson(response, 201, { task });
         }
-        await writeFile(taskMdPath, md, 'utf-8');
-        // 重建索引
-        documentIndex.indexDocument(taskMdPath, '任务/任务清单.md');
-        return sendJson(response, 200, { success: true });
+
+        if (action === 'update') {
+            const task = body.task;
+            if (!task || !task.id) return sendJson(response, 400, { error: '缺少任务 ID' });
+            task.updatedAt = new Date().toISOString();
+            const oldStatus = body.oldStatus || task.status;
+            const targetDir = oldStatus === '已完成' ? doneDir : todoDir;
+            const fileName = await findTaskFile(targetDir, task.id);
+            if (!fileName) {
+                // 可能状态改变了，尝试另一个目录
+                const altDir = targetDir === todoDir ? doneDir : todoDir;
+                const altFile = await findTaskFile(altDir, task.id);
+                if (!altFile) return sendJson(response, 404, { error: '任务未找到' });
+                // 从旧目录删除
+                await rm(path.join(altDir, altFile), { force: true });
+                // 写入新目录
+                const newTargetDir = task.status === '已完成' ? doneDir : todoDir;
+                const fname = safeFileName(task.name) + '-' + task.id.slice(0, 6) + '.md';
+                await writeTaskToFile(path.join(newTargetDir, fname), task);
+                return sendJson(response, 200, { task });
+            }
+            await writeTaskToFile(path.join(targetDir, fileName), task);
+            return sendJson(response, 200, { task });
+        }
+
+        if (action === 'delete') {
+            const taskId = body.id;
+            if (!taskId) return sendJson(response, 400, { error: '缺少任务 ID' });
+            for (const dir of [todoDir, doneDir]) {
+                const fileName = await findTaskFile(dir, taskId);
+                if (fileName) {
+                    await rm(path.join(dir, fileName), { force: true });
+                    return sendJson(response, 200, { success: true });
+                }
+            }
+            return sendJson(response, 404, { error: '任务未找到' });
+        }
+
+        if (action === 'complete') {
+            // 完成任务：从待办移到已完成
+            const taskId = body.id;
+            if (!taskId) return sendJson(response, 400, { error: '缺少任务 ID' });
+            const fileName = await findTaskFile(todoDir, taskId);
+            if (!fileName) return sendJson(response, 404, { error: '任务未找到' });
+            const task = await readTaskFromFile(path.join(todoDir, fileName));
+            task.status = '已完成';
+            task.completedAt = new Date().toISOString().slice(0, 10);
+            task.updatedAt = new Date().toISOString();
+            const fname = safeFileName(task.name) + '-' + task.id.slice(0, 6) + '.md';
+            await writeTaskToFile(path.join(doneDir, fname), task);
+            await rm(path.join(todoDir, fileName), { force: true });
+            return sendJson(response, 200, { task });
+        }
+
+        if (action === 'restore') {
+            // 恢复任务：从已完成移回待办
+            const taskId = body.id;
+            if (!taskId) return sendJson(response, 400, { error: '缺少任务 ID' });
+            const fileName = await findTaskFile(doneDir, taskId);
+            if (!fileName) return sendJson(response, 404, { error: '已完成任务未找到' });
+            const task = await readTaskFromFile(path.join(doneDir, fileName));
+            task.status = '待开始';
+            task.completedAt = '';
+            task.updatedAt = new Date().toISOString();
+            const fname = safeFileName(task.name) + '-' + task.id.slice(0, 6) + '.md';
+            await writeTaskToFile(path.join(todoDir, fname), task);
+            await rm(path.join(doneDir, fileName), { force: true });
+            return sendJson(response, 200, { task });
+        }
+
+        return sendJson(response, 400, { error: '未知操作: ' + action });
     }
 
     // ========== Agent API 路由 ==========

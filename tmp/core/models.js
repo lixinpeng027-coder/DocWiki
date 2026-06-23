@@ -165,8 +165,8 @@ export function getAllSceneAssignments() {
     return queryAll('SELECT * FROM scene_assignments ORDER BY scene');
 }
 
-// 获取场景可用模型，顺序为主模型、备用模型、其他已启用模型。
-// 只有已经配置供应商密钥的模型才会进入调用列表。
+// DocWiki 1.2.0: 严格场景分配 — 只使用场景中明确配置的主模型+备用模型，
+// 不允许跨模型自动 fallback 到其他供应商/模型。失败时向上层报错。
 export function getSceneModelCandidates(scene = 'default') {
     const assignment = queryOne(`
         SELECT primary_model_id, backup_model_id_1, backup_model_id_2
@@ -177,19 +177,21 @@ export function getSceneModelCandidates(scene = 'default') {
         ? [assignment.primary_model_id, assignment.backup_model_id_1, assignment.backup_model_id_2].filter(Boolean)
         : [];
 
+    if (assignedIds.length === 0) return []; // 无配置，让上层报错
+
     const available = queryAll(`
         SELECT m.*, p.name AS provider_name, p.provider_type, p.api_base_url
         FROM model_profiles m
         JOIN provider_configs p ON m.provider_id = p.id
         JOIN api_keys k ON k.provider_id = m.provider_id
-        WHERE m.enabled = 1
+        WHERE m.enabled = 1 AND m.id IN (${assignedIds.map(() => '?').join(',')})
         ORDER BY p.name, m.name
-    `);
-    const byId = new Map(available.map(model => [model.id, model]));
-    const assigned = assignedIds.map(id => byId.get(id)).filter(Boolean);
-    const assignedSet = new Set(assigned.map(model => model.id));
+    `, assignedIds);
 
-    const ordered = [...assigned, ...available.filter(model => !assignedSet.has(model.id))];
+    // 按分配顺序排列：primary → backup1 → backup2
+    const byId = new Map(available.map(model => [model.id, model]));
+    const ordered = assignedIds.map(id => byId.get(id)).filter(Boolean);
+
     const seenEndpoints = new Set();
     return ordered.filter(model => {
         const endpoint = `${model.provider_id}:${model.model_id}`;
