@@ -319,10 +319,11 @@ class GeminiAdapter extends BaseAdapter {
         };
         
         // 发送请求
-        const response = await fetch(`${baseUrl}/models/${request.model}:generateContent?key=${apiKey}`, {
+        const response = await fetch(`${baseUrl}/models/${request.model}:generateContent`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'x-goog-api-key': apiKey
             },
             body: JSON.stringify(body)
         });
@@ -371,10 +372,11 @@ class GeminiAdapter extends BaseAdapter {
         };
         
         // 发送请求
-        const response = await fetch(`${baseUrl}/models/${request.model}:streamGenerateContent?key=${apiKey}`, {
+        const response = await fetch(`${baseUrl}/models/${request.model}:streamGenerateContent`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'x-goog-api-key': apiKey
             },
             body: JSON.stringify(body)
         });
@@ -538,7 +540,10 @@ export async function listProviderModels(providerId, tempApiKey = null) {
         
         switch (provider.provider_type) {
             case 'google': {
-                const response = await fetch(`${baseUrl}/models?key=${apiKey}`, { method: 'GET' });
+                const response = await fetch(`${baseUrl}/models`, {
+                    method: 'GET',
+                    headers: { 'x-goog-api-key': apiKey }
+                });
                 if (!response.ok) return tempApiKey ? getLocalModels() : [];
                 const data = await response.json();
                 return data.models?.map(m => ({
